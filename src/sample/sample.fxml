@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Point3D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<Pane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <GridPane hgap="10.0" prefHeight="278.0" prefWidth="559.0" vgap="10.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Button mnemonicParsing="false" text="Delete" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <rotationAxis>
+            <Point3D />
+         </rotationAxis>
+      </GridPane>
+      <ImageView fitHeight="815.0" fitWidth="703.0" layoutX="571.0" layoutY="12.0" pickOnBounds="true" preserveRatio="true" />
+      <ScrollPane layoutX="2.0" layoutY="286.0" prefHeight="552.0" prefWidth="559.0">
+         <content>
+            <TableView prefHeight="621.0" prefWidth="607.0">
+              <columns>
+                <TableColumn prefWidth="129.0" text="Function" />
+                <TableColumn prefWidth="146.0" text="Translation" />
+                  <TableColumn prefWidth="115.0" text="Rotation" />
+                  <TableColumn prefWidth="106.0" text="tRange" />
+                  <TableColumn prefWidth="110.0" text="fRange" />
+              </columns>
+            </TableView>
+         </content>
+      </ScrollPane>
+   </children>
+</Pane>
