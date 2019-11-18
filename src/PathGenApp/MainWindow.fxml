@@ -9,7 +9,7 @@
 
 <TabPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="PathGenApp.WindowController">
    <tabs>
-      <Tab>
+      <Tab closable="false" text="Display and Edit">
          <content>
             <Pane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="844.0" prefWidth="1274.0">
                <children>
@@ -41,11 +41,11 @@
                         <TextField fx:id="funcStrInput" onAction="#setFuncString" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="1" />
                         <TextField fx:id="pathRangeInput" layoutX="20.0" layoutY="103.0" onAction="#setPathRange" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <TextField fx:id="fRangeInit" layoutX="203.0" layoutY="103.0" onAction="#setInitFuncLimit" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Label fx:id="functionStrLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Function String" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" />
+                        <Label fx:id="functionStrLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Resources.Function String" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" />
                         <Label fx:id="tRangeLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Path Range" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" />
                         <Label alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
-                        <Label fx:id="fRangeInitLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="158.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range Init" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
-                        <Label fx:id="fRangeEndLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range End" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" />
+                        <Label fx:id="fRangeInitLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="158.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Resources.Function Range Init" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
+                        <Label fx:id="fRangeEndLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Resources.Function Range End" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" />
                         <TextField fx:id="fRangeEnd" layoutX="295.0" layoutY="70.0" onAction="#setEndFuncLimit" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                         <Label fx:id="transXLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Translation X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="2" />
                         <Label fx:id="transYLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Translation Y" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -60,7 +60,7 @@
                      <content>
                         <TableView fx:id="funcInfoTable" prefHeight="573.0" prefWidth="557.0">
                            <columns>
-                              <TableColumn prefWidth="160.0" text="Function" />
+                              <TableColumn prefWidth="160.0" text="Resources.Function" />
                               <TableColumn prefWidth="108.0" text="Translation" />
                               <TableColumn prefWidth="69.0" text="Rotation" />
                               <TableColumn prefWidth="101.0" text="tRange" />
@@ -86,6 +86,16 @@
                </children>
             </Pane>
          </content>
+      </Tab>
+      <Tab closable="false" text="Settings">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+        </content>
+      </Tab>
+      <Tab closable="false" text="Drivuvigate">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+        </content>
       </Tab>
    </tabs>
 </TabPane>

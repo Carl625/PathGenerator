@@ -1,5 +1,7 @@
 package PathGenApp;
 
+import Resources.FileFunctions;
+
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -86,6 +88,7 @@ public class WindowController {
     // image view
     public void fieldClicked(MouseEvent mouseEvent) {
 
+        // TODO: implement cool file functions to load and save images
     }
 
     public void dragDetected(MouseEvent mouseEvent) {
@@ -95,5 +98,4 @@ public class WindowController {
     public void dragDropped(DragEvent dragEvent) {
 
     }
-
 }

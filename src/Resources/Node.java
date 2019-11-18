@@ -1,3 +1,5 @@
+package Resources;
+
 public class Node {
 
     public enum paramType {Const, Variable, Operation, T_FUNC}

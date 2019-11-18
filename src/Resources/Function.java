@@ -1,4 +1,5 @@
-import java.lang.reflect.Array;
+package Resources;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ public class Function {
     public enum operation {addition, subtraction, multiplication, division, exponent};
     private String funcVariable;
     private HashMap<String, Double> constantList;
-    private ArrayList<Node> operationsTree; // ArrayList<Pair<Bounds<Start, End>, Relatives<Parent, Children<Positions>>>>
+    private ArrayList<Node> operationsTree; // ArrayList<Resources.Pair<Bounds<Start, End>, Relatives<Parent, Children<Positions>>>>
 
     private boolean parseDebug;
 
@@ -73,7 +74,7 @@ public class Function {
         ArrayList<Node> functionStructure = new ArrayList<Node>();
 
         // checking for smaller functions inside
-        parseDebug("\n+ New Function: " + function);
+        parseDebug("\n+ New Resources.Function: " + function);
         function = function.substring(1, function.length() - 1); // remove garuanteed start and end parentheses
         parseDebug("Stripped function: " + function + "\n");
         ArrayList<Pair<Integer, Integer>> subFunctions = getSubFuncIndex(function);
@@ -327,9 +328,9 @@ public class Function {
                 link.setChild2(funcAfter);
 
                 // add them to the linked subfunctions list
-                parseDebug("\nFunction Before: " + funcBefore);
+                parseDebug("\nResources.Function Before: " + funcBefore);
                 parseDebug("Link: " + link);
-                parseDebug("Function After: " + funcAfter + "\n");
+                parseDebug("Resources.Function After: " + funcAfter + "\n");
 
                 linkedSubFunctions.add(link);
                 linkedSubFunctions.add(funcBefore);
@@ -358,7 +359,7 @@ public class Function {
 
                 if (subFunctionLinks.size() == 1 && !"+-*/^".contains(String.valueOf(subject))) {
 
-                    throw new FunctionFormatException("Trancendental Function misspelled: " + subject + " at: " + node , (new Exception()).getCause());
+                    throw new FunctionFormatException("Trancendental Resources.Function misspelled: " + subject + " at: " + node , (new Exception()).getCause());
                 }
             }
         }
@@ -397,7 +398,7 @@ public class Function {
         return root;
     }
 
-    //---------- Function Evaluation ----------//
+    //---------- Resources.Function Evaluation ----------//
 
     public double output(double input) {
 
@@ -720,7 +721,7 @@ public class Function {
         return false;
     }
 
-    //---------- Public Function Operations ----------//
+    //---------- Public Resources.Function Operations ----------//
 
     public static Function makeFunction(Node tree, String variable) {
 
@@ -1616,18 +1617,18 @@ public class Function {
     public static void main(String[] args) {
         testFunctions(0,100);
 
-//        Function quadratic = new Function("((x ^ 2) + (2 * x))", "x", new HashMap<String, Double>());
-//        Node newFunc = Function.composeTFUNC(quadratic.getRoot(), quadratic.getVariable(), Node.T_FUNC_TYPES.sin);
-//        System.out.println(Function.rebuildTree(newFunc));
+//        Resources.Function quadratic = new Resources.Function("((x ^ 2) + (2 * x))", "x", new HashMap<String, Double>());
+//        Resources.Node newFunc = Resources.Function.composeTFUNC(quadratic.getRoot(), quadratic.getVariable(), Resources.Node.T_FUNC_TYPES.sin);
+//        System.out.println(Resources.Function.rebuildTree(newFunc));
 //
-//        Function sine = new Function("(sin(x))", "x", new HashMap<String, Double>());
-//        Function complexSinusoid =  new Function("(x + ((sin(3 * x)) ^ x))", "x", new HashMap<String, Double>());
-//        Function cardoid = new Function("(1 + (sin(x)))", "x", new HashMap<String, Double>());
-        //Function atan2 = new Function("(atan2((x ^ 2) / (x + 4)))", "x", new HashMap<String, Double>());
+//        Resources.Function sine = new Resources.Function("(sin(x))", "x", new HashMap<String, Double>());
+//        Resources.Function complexSinusoid =  new Resources.Function("(x + ((sin(3 * x)) ^ x))", "x", new HashMap<String, Double>());
+//        Resources.Function cardoid = new Resources.Function("(1 + (sin(x)))", "x", new HashMap<String, Double>());
+        //Resources.Function atan2 = new Resources.Function("(atan2((x ^ 2) / (x + 4)))", "x", new HashMap<String, Double>());
 
-//        Function parabola = new Function("(x ^ 2)", "x", new HashMap<String, Double>());
-//        Function derivative1 = Function.derivative(parabola);
-//        Function two_X = new Function("(2 * x)", "x", new HashMap<String, Double>());
+//        Resources.Function parabola = new Resources.Function("(x ^ 2)", "x", new HashMap<String, Double>());
+//        Resources.Function derivative1 = Resources.Function.derivative(parabola);
+//        Resources.Function two_X = new Resources.Function("(2 * x)", "x", new HashMap<String, Double>());
 //        System.out.println(derivative1.output(-10));
 //        System.out.println(two_X.output(-10));
 //        System.out.println(derivative1);
@@ -1640,21 +1641,21 @@ public class Function {
         System.out.println("Manual Polynomial derivative: " + polyDeriv);
         System.out.println("Calculated Polynomial derivative: " + derivative2 + "\n");
 
-//        Function additionSimplified = Function.simplify(new Function("((6.0 + x) + 3.0)", "x", new HashMap<String, Double>()));
+//        Resources.Function additionSimplified = Resources.Function.simplify(new Resources.Function("((6.0 + x) + 3.0)", "x", new HashMap<String, Double>()));
 //        System.out.println(additionSimplified);
 //
-//        Function multiplicationSimplified = Function.simplify(new Function("((3 * x) * 6)", "x", new HashMap<String, Double>()));
+//        Resources.Function multiplicationSimplified = Resources.Function.simplify(new Resources.Function("((3 * x) * 6)", "x", new HashMap<String, Double>()));
 //        System.out.println(multiplicationSimplified);
 
-//        Function inefficient = new Function("((x ^ (2 * 8)) + (3 * (x * 1)))", "x", new HashMap<String, Double>());
+//        Resources.Function inefficient = new Resources.Function("((x ^ (2 * 8)) + (3 * (x * 1)))", "x", new HashMap<String, Double>());
 //        System.out.println(inefficient);
-//        Function efficient = Function.simplify(inefficient);
+//        Resources.Function efficient = Resources.Function.simplify(inefficient);
 //        System.out.println(efficient.getOperationsTree());
 //        System.out.println(efficient);
 
         String longest = "(((((3 * 5) * 45) + (x * (x ^ 3))) + (3 * (x / (3 * 9)))) * ((x / 4) ^ x))";
         Function longestFunction = new Function(longest, "x", new HashMap<String, Double>());
-        System.out.println("Longest Function: " + longestFunction);
+        System.out.println("Longest Resources.Function: " + longestFunction);
         System.out.println("Derivative of longest: " + Function.simplify(longestFunction));
     }
 }

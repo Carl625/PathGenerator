@@ -1,3 +1,7 @@
+import Resources.Function;
+import Resources.ParametricFunction2D;
+import Resources.Vector2D;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -35,7 +39,7 @@ public class PathGeneratorGraphics implements ActionListener {
 	private JTable functionProperties;
 	
 	private static String[] functionPropColumns = new String[] {
-			"Function",
+			"Resources.Function",
 			"Translation",
 			"Rotation",
 			"T Range",
@@ -97,27 +101,27 @@ public class PathGeneratorGraphics implements ActionListener {
 		functionGenPanel.setLayout(new BoxLayout(functionGenPanel, BoxLayout.Y_AXIS));
 		
 		//Labels
-		inputLabel = new JLabel("Function String:");
+		inputLabel = new JLabel("Resources.Function String:");
 		tRangeLabel = new JLabel("T Range:");
-		fRangeLabel = new JLabel("Function Range:");
+		fRangeLabel = new JLabel("Resources.Function Range:");
 		
 		// Text Fields
 		functionInput = new JTextField();
-		functionInput.setActionCommand("Function Input");
+		functionInput.setActionCommand("Resources.Function Input");
 		functionInput.addActionListener(this);
 		pathRange = new JTextField();
 		pathRange.setActionCommand("Path Range");
 		pathRange.addActionListener(this);
 		functionRange = new JTextField();
-		functionRange.setActionCommand("Function Range");
+		functionRange.setActionCommand("Resources.Function Range");
 		functionRange.addActionListener(this);
 		
 		//buttons
-		deleteFunc = new JButton("Delete Function");
-		deleteFunc.setActionCommand("Delete Function");
+		deleteFunc = new JButton("Delete Resources.Function");
+		deleteFunc.setActionCommand("Delete Resources.Function");
 		deleteFunc.addActionListener(this);
-		genFunc = new JButton("Generate Function");
-		genFunc.setActionCommand("Generate Function");
+		genFunc = new JButton("Generate Resources.Function");
+		genFunc.setActionCommand("Generate Resources.Function");
 		genFunc.addActionListener(this);
 		export = new JButton("Export Path");
 		export.setActionCommand("Export Path");

@@ -1,3 +1,5 @@
+package Resources;
+
 import java.util.HashMap;
 
 public class ParametricFunction2D {
@@ -49,7 +51,7 @@ public class ParametricFunction2D {
     	polarComponents = oldFunc.getPolarComponents();
     }
 
-    //---------- Function Properties ----------//
+    //---------- Resources.Function Properties ----------//
     public double genMag(double tVal) {
 
         return Math.sqrt(Math.pow(rectangularComponents.get1().output(tVal), 2) + Math.pow(rectangularComponents.get2().output(tVal), 2));
@@ -113,7 +115,7 @@ public class ParametricFunction2D {
         return name;
     }
 
-    //---------- Function Operations ----------//
+    //---------- Resources.Function Operations ----------//
 
     public static Pair<Function, Function> parametrize(Function pathComponent, boolean isPolar) {
 

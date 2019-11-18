@@ -18,10 +18,10 @@ public class Main extends Application {
         Bounds rootBounds = root.getBoundsInLocal();
 
 
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("Path Generator");
         Scene worldScene = new Scene(root, rootBounds.getWidth(), rootBounds.getHeight());
         primaryStage.setScene(worldScene);
-        //primaryStage.setResizable(false);
+        primaryStage.setResizable(false);
         primaryStage.show();
         fixBounds(primaryStage, root);
     }
@@ -39,6 +39,7 @@ public class Main extends Application {
 
         stage.setMinWidth(prefBounds.getWidth() + deltaW);
         stage.setMinHeight(prefBounds.getHeight() + deltaH);
+        stage.sizeToScene();
     }
 
     private Bounds getPrefBounds(Node node) {

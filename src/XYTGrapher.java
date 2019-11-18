@@ -1,6 +1,7 @@
+import Resources.Pair;
+
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
-import java.util.ArrayList;
 
 import javax.swing.*;
 

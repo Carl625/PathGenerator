@@ -1,3 +1,7 @@
+import Resources.Function;
+import Resources.Pair;
+import Resources.ParametricFunction2D;
+
 import java.util.HashMap;
 
 public class FTCParamFuncGrapherTester extends FTCParametricFunctionGrapher {
@@ -60,9 +64,9 @@ public class FTCParamFuncGrapherTester extends FTCParametricFunctionGrapher {
 	
 	public static void main(String[] args) {
 		
-//		Function sine = new Function("(8 * (sin(x)))", "x", new HashMap<String, Double>());
-//		Function cosine = new Function("(4 * (cos(x)))", "x", new HashMap<String, Double>());
-//		ParametricFunction2D circle = new ParametricFunction2D(sine, cosine, false);
+//		Resources.Function sine = new Resources.Function("(8 * (sin(x)))", "x", new HashMap<String, Double>());
+//		Resources.Function cosine = new Resources.Function("(4 * (cos(x)))", "x", new HashMap<String, Double>());
+//		Resources.ParametricFunction2D circle = new Resources.ParametricFunction2D(sine, cosine, false);
 		
 		Function parabola = new Function("(x ^ 2)", "x", new HashMap<String, Double>());
 		ParametricFunction2D parabolaParametric = new ParametricFunction2D(parabola, false);
@@ -71,8 +75,8 @@ public class FTCParamFuncGrapherTester extends FTCParametricFunctionGrapher {
 		System.out.println(derivative1);
 		ParametricFunction2D derivParametric = new ParametricFunction2D(derivative1, false);
 		
-		//ParametricFunction2D rotatedPP = ParametricFunction2D.rotate(parabolaParametric, Math.toRadians(168));
-		//ParametricFunction2D regeneratedParabolaParametric = new ParametricFunction2D(rotatedPP.getPolarComponents().get1(), rotatedPP.getPolarComponents().get2(), true);
+		//Resources.ParametricFunction2D rotatedPP = Resources.ParametricFunction2D.rotate(parabolaParametric, Math.toRadians(168));
+		//Resources.ParametricFunction2D regeneratedParabolaParametric = new Resources.ParametricFunction2D(rotatedPP.getPolarComponents().get1(), rotatedPP.getPolarComponents().get2(), true);
 		
 		FTCParamFuncGrapherTester g = new FTCParamFuncGrapherTester(parabolaParametric, new Pair<Coordinate, Coordinate>(new Coordinate(-2, -2), new Coordinate(2, 2)), -(Math.PI * 6), Math.PI / 500, Math.PI * 12, true);
 		g.drawGraph(0, 0, 2000, 2000);
