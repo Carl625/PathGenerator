@@ -14,9 +14,13 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("MainWindow.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainWindow.fxml"));
+        Parent root = loader.load();
         Bounds rootBounds = root.getBoundsInLocal();
 
+        //set up the data inside the controller
+        WindowController mainController = loader.getController();
+        mainController.initialize();
 
         primaryStage.setTitle("Path Generator");
         Scene worldScene = new Scene(root, rootBounds.getWidth(), rootBounds.getHeight());

@@ -2,15 +2,26 @@ package PathGenApp;
 
 import Resources.FileFunctions;
 
+import Resources.Function;
+import Resources.ParametricFunction2D;
+import Resources.Vector2D;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.ResourceBundle;
+
 public class WindowController {
 
+    // display elements
     enum displayState {display, dragStarted, dragging, dragFinished,};
 
     public Pane telemetryPane;
@@ -41,10 +52,42 @@ public class WindowController {
     public Label transYLabel;
     public Label rotationLabel;
 
+    public TableColumn funcColumn;
+    public TableColumn transColumn;
+    public TableColumn rotColumn;
+    public TableColumn tRangeColumn;
+    public TableColumn fRangeColumn;
+
+    //display data
+    private ArrayList<ParametricFunction2D> displayedFunctions;
+
+    // Path storage
+    private ArrayList<Function> functions;
+    private ArrayList<Vector2D> translations;
+    private ArrayList<Double> rotations;
+    private ArrayList<double[]> definedFunctionRanges;
+    private ArrayList<double[]> tRanges;
+    private ArrayList<Double> maxSpeed;
+
+    public void initialize() {
+
+        displayedFunctions = new ArrayList<ParametricFunction2D>();
+
+        functions = new ArrayList<Function>();
+        translations = new ArrayList<Vector2D>();
+        rotations = new ArrayList<Double>();
+
+        tRanges = new ArrayList<double[]>();
+        definedFunctionRanges = new ArrayList<double[]>();
+
+        maxSpeed = new ArrayList<Double>();
+    }
+
     /* ---------- Component Functions ----------*/
 
     // buttons
     public void deleteFunc(ActionEvent actionEvent) {
+
 
     }
 
@@ -53,6 +96,7 @@ public class WindowController {
     }
 
     public void genFunc(ActionEvent actionEvent) {
+
 
     }
 
@@ -98,4 +142,6 @@ public class WindowController {
     public void dragDropped(DragEvent dragEvent) {
 
     }
+
+    /* ---------- Data Manipulation ----------*/
 }
