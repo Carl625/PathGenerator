@@ -34,8 +34,8 @@ public class Main extends Application {
         double deltaW = stage.getWidth() - rootBounds.getWidth();
         double deltaH = stage.getHeight() - rootBounds.getHeight();
 
-        System.out.println(deltaW);
-        System.out.println(deltaH);
+//        System.out.println(deltaW);
+//        System.out.println(deltaH);
 
         stage.setMinWidth(prefBounds.getWidth() + deltaW);
         stage.setMinHeight(prefBounds.getHeight() + deltaH);

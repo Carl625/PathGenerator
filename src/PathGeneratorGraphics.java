@@ -44,7 +44,6 @@ public class PathGeneratorGraphics implements ActionListener {
 	
 	// field display
 	private JPanel fieldDisplayPanel;
-	private FieldDisplay background;
 	private ArrayList<ParametricFunction2D> displayedFunctions;
 	
 	// Path storage
