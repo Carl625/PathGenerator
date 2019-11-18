@@ -1,4 +1,4 @@
-package sample;
+package PathGenApp;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -17,6 +17,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("MainWindow.fxml"));
         Bounds rootBounds = root.getBoundsInLocal();
 
+
         primaryStage.setTitle("Hello World");
         Scene worldScene = new Scene(root, rootBounds.getWidth(), rootBounds.getHeight());
         primaryStage.setScene(worldScene);
@@ -26,10 +27,15 @@ public class Main extends Application {
     }
 
     private void fixBounds(Stage stage, Parent root) {
-        double deltaW = stage.getWidth() - stage.getWidth();
-        double deltaH = stage.getHeight() - stage.getHeight();
 
+        Bounds rootBounds = root.getBoundsInLocal();
         Bounds prefBounds = getPrefBounds(root);
+
+        double deltaW = stage.getWidth() - rootBounds.getWidth();
+        double deltaH = stage.getHeight() - rootBounds.getHeight();
+
+        System.out.println(deltaW);
+        System.out.println(deltaH);
 
         stage.setMinWidth(prefBounds.getWidth() + deltaW);
         stage.setMinHeight(prefBounds.getHeight() + deltaH);
@@ -52,7 +58,6 @@ public class Main extends Application {
         }
         return new BoundingBox(0, 0, prefWidth, prefHeight);
     }
-
 
     public static void main(String[] args) {
         launch(args);
