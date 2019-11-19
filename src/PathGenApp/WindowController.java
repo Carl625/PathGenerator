@@ -1,6 +1,7 @@
 package PathGenApp;
 
 import Resources.*;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -14,6 +15,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -86,6 +89,8 @@ public class WindowController {
         tRangeColumn.setCellValueFactory(new PropertyValueFactory<>("TRange"));
         fRangeColumn.setCellValueFactory(new PropertyValueFactory<>("FuncRange"));
 
+        funcInfoTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> rowSelected(getRow((FuncTableEntry) observable.getValue())));
+
         // data
         displayedFunctions = new ArrayList<ParametricFunction2D>();
 
@@ -128,7 +133,6 @@ public class WindowController {
 
         if (funcSelected >= 0) {
 
-            loadRow(funcSelected); // loads the row to be modified
             //TODO: remember to make the generate button change to a modify button when a function is selected
         }
 
@@ -229,6 +233,14 @@ public class WindowController {
 
     }
 
+    // table
+    public void rowSelected(int row) { // whatever it's gonna be called
+
+        funcSelected = row;
+        // set funcSelected equal to something
+        loadRow(funcSelected); // loads the row to be modified
+    }
+
     // image view
     public void fieldClicked(MouseEvent mouseEvent) {
 
@@ -245,6 +257,21 @@ public class WindowController {
 
     /* ---------- Data Methods ----------*/
 
+    public int getRow(FuncTableEntry tableEntry) {
+
+        for (Object f: funcInfoTable.getItems()) {
+
+            FuncTableEntry current = (FuncTableEntry) f;
+
+            if (current.equals(tableEntry)) { // do a deep check
+
+
+            }
+        }
+
+        return 0; // fix
+    }
+
     private void loadRow(int rowNum) {
 
         FuncTableEntry f = (FuncTableEntry) funcInfoTable.getItems().get(rowNum);
@@ -258,4 +285,5 @@ public class WindowController {
         transYInput.setText(String.valueOf(f.getTranslationVar().getComponents()[1]));
         rotationInput.setText(f.getRotation());
     }
+
 }
