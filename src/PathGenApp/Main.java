@@ -43,7 +43,8 @@ public class Main extends Application {
 
         stage.setMinWidth(prefBounds.getWidth() + deltaW);
         stage.setMinHeight(prefBounds.getHeight() + deltaH);
-        stage.sizeToScene();
+        stage.setMaxWidth(prefBounds.getWidth() + deltaW);
+        stage.setMaxHeight(prefBounds.getHeight() + deltaH);
     }
 
     private Bounds getPrefBounds(Node node) {

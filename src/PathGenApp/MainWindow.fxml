@@ -58,44 +58,42 @@
                         <TextField fx:id="funcStrInput" onAction="#setFuncString" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="1" />
                         <TextField fx:id="pathRangeInput" layoutX="20.0" layoutY="103.0" onAction="#setPathRange" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <TextField fx:id="fRangeInit" layoutX="203.0" layoutY="103.0" onAction="#setInitFuncLimit" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Label fx:id="functionStrLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Resources.Function String" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" />
+                        <Label fx:id="functionStrLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Function String" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" />
                         <Label fx:id="tRangeLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Path Range" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" />
                         <Label alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
                         <Label fx:id="fRangeInitLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="158.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range Init" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
                         <Label fx:id="fRangeEndLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range End" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" />
                         <TextField fx:id="fRangeEnd" layoutX="295.0" layoutY="70.0" onAction="#setEndFuncLimit" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                        <Label fx:id="transXLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Translation X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="2" />
-                        <Label fx:id="transYLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Translation Y" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label fx:id="rotationLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Rotation (Degrees)" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <TextField fx:id="transXInput" layoutX="158.0" layoutY="70.0" onAction="#setTransX" GridPane.rowIndex="3" />
-                        <TextField fx:id="transYInput" layoutX="20.0" layoutY="160.0" onAction="#setTransY" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <TextField fx:id="rotationInput" layoutX="158.0" layoutY="160.0" onAction="#setRotation" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Label fx:id="transXLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Translation X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label fx:id="transYLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Translation Y" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Label fx:id="rotationLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Rotation (Degrees)" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <TextField fx:id="transXInput" layoutX="158.0" layoutY="70.0" onAction="#setTransX" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextField fx:id="transYInput" layoutX="20.0" layoutY="160.0" onAction="#setTransY" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <TextField fx:id="rotationInput" layoutX="158.0" layoutY="160.0" onAction="#setRotation" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                        <Label fx:id="funcVarLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Variable" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="2" />
+                        <TextField fx:id="funcVarInput" layoutX="20.0" layoutY="84.0" onAction="#setFuncVar" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="3" />
                      </children>
                   </GridPane>
-                  <ImageView fx:id="fieldDisplay" fitHeight="713.0" fitWidth="713.0" layoutX="561.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" pickOnBounds="true" preserveRatio="true" />
-                  <ScrollPane layoutX="2.0" layoutY="286.0" prefHeight="552.0" prefWidth="559.0">
-                     <content>
-                        <TableView fx:id="funcInfoTable" prefHeight="573.0" prefWidth="557.0">
-                           <columns>
-                              <TableColumn fx:id="funcColumn" prefWidth="160.0" text="Function" />
-                              <TableColumn fx:id="transColumn" prefWidth="108.0" text="Translation" />
-                              <TableColumn fx:id="rotColumn" prefWidth="69.0" text="Rotation" />
-                              <TableColumn fx:id="tRangeColumn" prefWidth="101.0" text="tRange" />
-                              <TableColumn fx:id="fRangeColumn" prefWidth="118.0" text="Func Range" />
-                           </columns>
-                        </TableView>
-                     </content>
-                  </ScrollPane>
-                  <Pane fx:id="telemetryPane" layoutX="561.0" layoutY="713.0" prefHeight="128.0" prefWidth="713.0">
+                  <ImageView fx:id="fieldDisplay" fitHeight="700.0" fitWidth="700.0" layoutX="568.0" layoutY="14.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" pickOnBounds="true" preserveRatio="true" />
+                  <TableView fx:id="funcInfoTable" layoutX="1.0" layoutY="278.0" prefHeight="565.0" prefWidth="557.0">
+                     <columns>
+                        <TableColumn fx:id="funcColumn" editable="false" prefWidth="217.0" resizable="false" sortable="false" text="Function" />
+                        <TableColumn fx:id="transColumn" editable="false" prefWidth="98.0" resizable="false" sortable="false" text="Translation" />
+                        <TableColumn fx:id="rotColumn" editable="false" prefWidth="73.0" resizable="false" sortable="false" text="Rotation" />
+                        <TableColumn fx:id="tRangeColumn" editable="false" prefWidth="73.0" resizable="false" sortable="false" text="tRange" />
+                        <TableColumn fx:id="fRangeColumn" editable="false" prefWidth="95.0" resizable="false" sortable="false" text="Func Range" />
+                     </columns>
+                  </TableView>
+                  <Pane fx:id="telemetryPane" layoutX="562.0" layoutY="713.0" prefHeight="128.0" prefWidth="714.0">
                      <children>
                         <Label alignment="CENTER" layoutX="311.0" layoutY="1.0" prefHeight="25.0" prefWidth="91.0" text="Telemetry" textAlignment="CENTER">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <ScrollPane layoutY="26.0" prefHeight="102.0" prefWidth="713.0">
+                        <ScrollPane layoutY="26.0" prefHeight="102.0" prefWidth="712.0">
                            <content>
-                              <ListView fx:id="telemetryList" prefHeight="99.0" prefWidth="711.0" />
+                              <ListView fx:id="telemetryList" prefHeight="99.0" prefWidth="710.0" />
                            </content>
                         </ScrollPane>
                      </children>

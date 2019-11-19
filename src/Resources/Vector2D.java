@@ -9,20 +9,20 @@ public class Vector2D {
     private double theta;
     private double[] components;
 
-    Vector2D(double comp1, double comp2) {
+    public Vector2D(double comp1, double comp2) {
 
         components = new double[] {comp1, comp2};
         genAngles();
     }
 
-    Vector2D(float newTheta, float newMag) {
+    public Vector2D(float newTheta, float newMag) {
 
         R = newMag;
         theta = newTheta;
         genComp();
     }
 
-    Vector2D(Vector2D prevV) {
+    public Vector2D(Vector2D prevV) {
 
         components = prevV.getComponents();
         R = prevV.getMag();
@@ -173,10 +173,7 @@ public class Vector2D {
     }
 
     public String toString() {
-
-        String vector = name + ": <";
-        vector += components[0] + ", ";
-        vector += components[1] + ">";
+        String vector = "<" + components[0] + ", " + components[1] + ">";
 
         return vector;
     }
