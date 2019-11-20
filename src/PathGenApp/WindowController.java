@@ -16,9 +16,7 @@ import javafx.scene.layout.Pane;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 public class WindowController {
 
@@ -40,7 +38,7 @@ public class WindowController {
     public TextField pathRangeInput;
     public TextField fRangeInit;
     public TextField fRangeEnd;
-    public TextField funcVarInput;
+    public TextField funcScaleInput;
     public TextField transXInput;
     public TextField transYInput;
     public TextField rotationInput;
@@ -53,7 +51,7 @@ public class WindowController {
     public Label tRangeLabel;
     public Label fRangeInitLabel;
     public Label fRangeEndLabel;
-    public Label funcVarLabel;
+    public Label funcScaleLabel;
     public Label transXLabel;
     public Label transYLabel;
     public Label rotationLabel;
@@ -61,6 +59,7 @@ public class WindowController {
     public TableColumn funcColumn;
     public TableColumn transColumn;
     public TableColumn rotColumn;
+    public TableColumn scaleColumn;
     public TableColumn tRangeColumn;
     public TableColumn fRangeColumn;
 
@@ -71,9 +70,9 @@ public class WindowController {
     private ArrayList<Function> functions;
     private ArrayList<Vector2D> translations;
     private ArrayList<Double> rotations;
+    private ArrayList<Double> scales;
     private ArrayList<Double> tRanges;
     private ArrayList<double[]> definedFunctionRanges;
-    private ArrayList<Double> maxSpeed;
 
     private int funcSelected = -1; // add the listener for the selection model
     private boolean modifyFinished = true;
@@ -85,6 +84,7 @@ public class WindowController {
         funcColumn.setCellValueFactory(new PropertyValueFactory<>("Function"));
         transColumn.setCellValueFactory(new PropertyValueFactory<>("Translation"));
         rotColumn.setCellValueFactory(new PropertyValueFactory<>("Rotation"));
+        scaleColumn.setCellValueFactory(new PropertyValueFactory<>("Scale"));
         tRangeColumn.setCellValueFactory(new PropertyValueFactory<>("TRange"));
         fRangeColumn.setCellValueFactory(new PropertyValueFactory<>("FuncRange"));
 
@@ -100,10 +100,9 @@ public class WindowController {
         functions = new ArrayList<Function>();
         translations = new ArrayList<Vector2D>();
         rotations = new ArrayList<Double>();
+        scales = new ArrayList<Double>();
         tRanges = new ArrayList<Double>();
         definedFunctionRanges = new ArrayList<double[]>();
-
-        maxSpeed = new ArrayList<Double>();
 
         Image field = null;
 
@@ -117,7 +116,7 @@ public class WindowController {
         fieldDisplay.setImage(field);
 
         // debug
-        FuncTableEntry f = new FuncTableEntry("(x + 2)", "x", new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
+        FuncTableEntry f = new FuncTableEntry("(x + 2)", 0.25, new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
         loadRow(f);
     }
 
@@ -140,6 +139,25 @@ public class WindowController {
     public void deleteFunc(ActionEvent actionEvent) {
 
 
+        // change the internal data
+        functions.remove(funcSelected);
+        translations.remove(funcSelected);
+        rotations.remove(funcSelected);
+        scales.remove(funcSelected);
+        tRanges.remove(funcSelected);
+        definedFunctionRanges.remove(funcSelected);
+
+        funcInfoTable.getItems().remove(funcSelected); // overwrite the selected row
+
+        clearInputs();
+        funcInfoTable.getSelectionModel().clearSelection();
+
+        if (funcInfoTable.getItems().size() == 0) {
+
+            // clear the modify state
+            deleteFunction.setDisable(true);
+            genFunction.setText("Generate");
+        }
     }
 
     public void exportFunc(ActionEvent actionEvent) {
@@ -154,7 +172,7 @@ public class WindowController {
         Function newFunc = null;
 
         try {
-            newFunc = Function.simplify(new Function(funcStrInput.getText(), funcVarInput.getText(), new HashMap<String, Double>()));
+            newFunc = Function.constSimplify(new Function(funcStrInput.getText(), "x", new HashMap<String, Double>()));
         } catch (Exception e) {
             properlyFormatted = false;
         }
@@ -166,6 +184,14 @@ public class WindowController {
              yComp = Double.parseDouble(transYInput.getText());
         } catch (Exception e) {
 
+            properlyFormatted = false;
+        }
+
+        double scale = 0.0;
+
+        try {
+            scale = Double.parseDouble(funcScaleInput.getText());
+        } catch (Exception e) {
             properlyFormatted = false;
         }
 
@@ -198,32 +224,35 @@ public class WindowController {
 
         if (properlyFormatted) {
 
-            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), newFunc.getVariable(), translation, rotation, tRange, fRange);
+            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), scale, translation, rotation, tRange, fRange);
 
             if (funcSelected >= 0) {
-
-                funcInfoTable.getItems().set(funcSelected, newRow); // overwrite the selected row
 
                 // change the internal data
                 functions.set(funcSelected, newFunc);
                 translations.set(funcSelected, translation);
                 rotations.set(funcSelected, rotation);
+                scales.set(funcSelected, scale);
                 tRanges.set(funcSelected, tRange);
                 definedFunctionRanges.set(funcSelected, fRange);
+
+                funcInfoTable.getItems().set(funcSelected, newRow); // overwrite the selected row
 
                 // clear the modify state
                 clearInputs();
                 deleteFunction.setDisable(true);
                 genFunction.setText("Generate");
             } else {
-                funcInfoTable.getItems().add(newRow); // add a new row
 
                 // add to internal data
                 functions.add(newFunc);
                 translations.add(translation);
                 rotations.add(rotation);
+                scales.add(scale);
                 tRanges.add(tRange);
                 definedFunctionRanges.add(fRange);
+
+                funcInfoTable.getItems().add(newRow); // add a new row
             }
         } else {
             // make a window pop up
@@ -299,6 +328,9 @@ public class WindowController {
 
     private void updateDisplay() {
 
+        // draw
+
+
 
         // making sure it's good to export or not
         boolean exportReady = true;
@@ -340,7 +372,7 @@ public class WindowController {
         pathRangeInput.setText(f.getTRange());
         fRangeInit.setText(String.valueOf(f.getFuncRangeVar()[0]));
         fRangeEnd.setText(String.valueOf(f.getFuncRangeVar()[1]));
-        funcVarInput.setText(f.getVariable());
+        funcScaleInput.setText(f.getScale());
         transXInput.setText(String.valueOf(f.getTranslationVar().getComponents()[0]));
         transYInput.setText(String.valueOf(f.getTranslationVar().getComponents()[1]));
         rotationInput.setText(f.getRotation());
@@ -352,10 +384,65 @@ public class WindowController {
         pathRangeInput.clear();
         fRangeInit.clear();
         fRangeEnd.clear();
-        funcVarInput.clear();
+        funcScaleInput.clear();
         transXInput.clear();
         transYInput.clear();
         rotationInput.clear();
     }
 
+
+    // drawing algorithms
+    public Image draw(ParametricFunction2D newFunc, double initT, double deltaT, double fRange , boolean polarity) {
+
+        Pair<Function, Function> process;
+        double xOffset = 0;
+        double yOffset = 0;
+
+        if (polarity) {
+            process = newFunc.getPolarComponents();
+            double r = process.get1().output(initT);
+            double theta = process.get2().output(initT);
+
+            xOffset = r * Math.cos(theta);
+            yOffset = r * Math.sin(theta);
+        } else {
+            process = newFunc.getRectangularComponents();
+            xOffset = process.get1().output(initT);
+            yOffset = process.get2().output(initT);
+        }
+
+        ArrayList<Pair<Double, Double>> points = new ArrayList<Pair<Double, Double>>();
+
+//        Coordinate lastCoord = null; // TODO: IMPLEMENT GOOD THING
+//
+//        int pointNum = 0;
+//        Coordinate point = getPoint(pointNum);
+//
+//        while (point != null) {
+//
+//            double xPixel = pixelStart[0] + (point.getX() - displayRange.get1().getX()) * (graphWidth / xRange);
+//            double yPixel = pixelStart[1] + (displayRange.get1().getY() + yRange - point.getY()) * (graphHeight / yRange);
+//
+//            if (polarity) {
+//
+//                xPixel = pixelStart[0] + ((point.getX() * Math.cos(point.getY())) - displayRange.get1().getX()) * (graphWidth / xRange);
+//                yPixel = pixelStart[1] + (displayRange.get1().getY() + yRange - (point.getX() * Math.sin(point.getY()))) * (graphHeight / yRange);
+//            }
+//
+//            if (lastCoord != null) {
+//                if (point.drawTo() && lastCoord.drawFrom()) {
+//                    g.drawLine((int) lastCoord.getX(), (int) lastCoord.getY(), (int) xPixel, (int) yPixel);
+//                }
+//            }
+//
+//
+//            lastCoord = new Coordinate(xPixel, yPixel, point.drawFrom(), point.drawTo());
+//            pointNum++;
+//            point = getPoint(pointNum);
+//        }
+
+        Image function = null;
+
+        return function;
+    }
 }

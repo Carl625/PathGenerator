@@ -250,8 +250,8 @@ public class ParametricFunction2D {
 
     public static ParametricFunction2D derivativeParametric(ParametricFunction2D originalFunc) {
 
-        Function derivativeyt = Function.simplify(Function.derivative(originalFunc.getRectangularComponents().get2()));
-        Function derivativext = Function.simplify(Function.derivative(originalFunc.getRectangularComponents().get1()));
+        Function derivativeyt = Function.constSimplify(Function.derivative(originalFunc.getRectangularComponents().get2()));
+        Function derivativext = Function.constSimplify(Function.derivative(originalFunc.getRectangularComponents().get1()));
 
         return (new ParametricFunction2D(derivativeyt, derivativext, false));
     }
@@ -271,10 +271,10 @@ public class ParametricFunction2D {
         Function y = originalFunc.getRectangularComponents().get2();
 
         // first and second derivatives
-        Function dy_1 = Function.simplify(Function.derivative(y));
-        Function dy_2 = Function.simplify(Function.derivative(dy_1));
-        Function dx_1 = Function.simplify(Function.derivative(x));
-        Function dx_2 = Function.simplify(Function.derivative(dx_1));
+        Function dy_1 = Function.constSimplify(Function.derivative(y));
+        Function dy_2 = Function.constSimplify(Function.derivative(dy_1));
+        Function dx_1 = Function.constSimplify(Function.derivative(x));
+        Function dx_2 = Function.constSimplify(Function.derivative(dx_1));
 
         // top term
         Function topProduct1 = Function.operate(dx_1, dy_2, Function.operation.multiplication);
