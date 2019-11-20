@@ -1,7 +1,6 @@
 package PathGenApp;
 
 import Resources.*;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -14,18 +13,17 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class WindowController {
+
+    // panes
+    public Pane mainPane;
 
     // display elements
     enum displayState {display, dragStarted, dragging, dragFinished,};
@@ -73,11 +71,12 @@ public class WindowController {
     private ArrayList<Function> functions;
     private ArrayList<Vector2D> translations;
     private ArrayList<Double> rotations;
+    private ArrayList<Double> tRanges;
     private ArrayList<double[]> definedFunctionRanges;
-    private ArrayList<double[]> tRanges;
     private ArrayList<Double> maxSpeed;
 
     private int funcSelected = -1; // add the listener for the selection model
+    private boolean modifyFinished = true;
 
     public void initialize() {
 
@@ -89,7 +88,11 @@ public class WindowController {
         tRangeColumn.setCellValueFactory(new PropertyValueFactory<>("TRange"));
         fRangeColumn.setCellValueFactory(new PropertyValueFactory<>("FuncRange"));
 
-        funcInfoTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> rowSelected(getRow((FuncTableEntry) observable.getValue())));
+        funcInfoTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> rowSelected());
+
+        // buttons
+        deleteFunction.setDisable(true);
+        exportFunction.setDisable(true);
 
         // data
         displayedFunctions = new ArrayList<ParametricFunction2D>();
@@ -97,8 +100,7 @@ public class WindowController {
         functions = new ArrayList<Function>();
         translations = new ArrayList<Vector2D>();
         rotations = new ArrayList<Double>();
-
-        tRanges = new ArrayList<double[]>();
+        tRanges = new ArrayList<Double>();
         definedFunctionRanges = new ArrayList<double[]>();
 
         maxSpeed = new ArrayList<Double>();
@@ -113,9 +115,26 @@ public class WindowController {
         }
 
         fieldDisplay.setImage(field);
+
+        // debug
+        FuncTableEntry f = new FuncTableEntry("(x + 2)", "x", new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
+        loadRow(f);
     }
 
     /* ---------- Component Functions ----------*/
+
+    // pane
+    public void mainPaneClicked(MouseEvent mouseEvent) {
+
+        if (funcSelected != -1) {
+
+            funcSelected = -1;
+            clearInputs();
+            funcInfoTable.getSelectionModel().clearSelection();
+            deleteFunction.setDisable(true);
+            genFunction.setText("Generate");
+        }
+    }
 
     // buttons
     public void deleteFunc(ActionEvent actionEvent) {
@@ -125,16 +144,12 @@ public class WindowController {
 
     public void exportFunc(ActionEvent actionEvent) {
 
+        // run method that exports current path
     }
 
     public void genFunc(ActionEvent actionEvent) {
 
         boolean properlyFormatted = true;
-
-        if (funcSelected >= 0) {
-
-            //TODO: remember to make the generate button change to a modify button when a function is selected
-        }
 
         Function newFunc = null;
 
@@ -186,9 +201,29 @@ public class WindowController {
             FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), newFunc.getVariable(), translation, rotation, tRange, fRange);
 
             if (funcSelected >= 0) {
+
                 funcInfoTable.getItems().set(funcSelected, newRow); // overwrite the selected row
+
+                // change the internal data
+                functions.set(funcSelected, newFunc);
+                translations.set(funcSelected, translation);
+                rotations.set(funcSelected, rotation);
+                tRanges.set(funcSelected, tRange);
+                definedFunctionRanges.set(funcSelected, fRange);
+
+                // clear the modify state
+                clearInputs();
+                deleteFunction.setDisable(true);
+                genFunction.setText("Generate");
             } else {
                 funcInfoTable.getItems().add(newRow); // add a new row
+
+                // add to internal data
+                functions.add(newFunc);
+                translations.add(translation);
+                rotations.add(rotation);
+                tRanges.add(tRange);
+                definedFunctionRanges.add(fRange);
             }
         } else {
             // make a window pop up
@@ -234,11 +269,16 @@ public class WindowController {
     }
 
     // table
-    public void rowSelected(int row) { // whatever it's gonna be called
+    public void rowSelected() {
 
-        funcSelected = row;
+        funcSelected = funcInfoTable.getSelectionModel().getSelectedIndex();
+        System.out.println("row Selected: " + funcSelected);
         // set funcSelected equal to something
-        loadRow(funcSelected); // loads the row to be modified
+        if (funcSelected != -1) {
+            loadRow((FuncTableEntry) funcInfoTable.getSelectionModel().getSelectedItem()); // loads the row to be modified
+            deleteFunction.setDisable(false);
+            genFunction.setText("Modify");
+        }
     }
 
     // image view
@@ -257,24 +297,44 @@ public class WindowController {
 
     /* ---------- Data Methods ----------*/
 
-    public int getRow(FuncTableEntry tableEntry) {
-
-        for (Object f: funcInfoTable.getItems()) {
-
-            FuncTableEntry current = (FuncTableEntry) f;
-
-            if (current.equals(tableEntry)) { // do a deep check
+    private void updateDisplay() {
 
 
-            }
+        // making sure it's good to export or not
+        boolean exportReady = true;
+
+        Function[] orderedFunctions = functions.toArray(new Function[0]);
+        Vector2D[] newTranslations = translations.toArray(new Vector2D[0]);
+        double[] newTRanges = tRanges.stream().mapToDouble(d -> d).toArray();
+        double[][] newDefRanges = new ArrayList<double[]>(definedFunctionRanges).toArray(new double[definedFunctionRanges.size()][]);
+        double[] newAngles = rotations.stream().mapToDouble(d -> d).toArray();
+
+        ParametricPath path = null;
+
+        try {
+            path = new ParametricPath(orderedFunctions, newTranslations, newTRanges, newDefRanges, newAngles);
+        } catch (FunctionFormatException e) {
+            exportReady = false;
         }
 
-        return 0; // fix
+        if (exportReady) {
+
+            exportFunction.setDisable(false);
+        } else {
+
+            exportFunction.setDisable(true);
+        }
+
     }
 
     private void loadRow(int rowNum) {
 
         FuncTableEntry f = (FuncTableEntry) funcInfoTable.getItems().get(rowNum);
+
+        loadRow(f);
+    }
+
+    private void loadRow(FuncTableEntry f) {
 
         funcStrInput.setText(f.getFunction());
         pathRangeInput.setText(f.getTRange());
@@ -284,6 +344,18 @@ public class WindowController {
         transXInput.setText(String.valueOf(f.getTranslationVar().getComponents()[0]));
         transYInput.setText(String.valueOf(f.getTranslationVar().getComponents()[1]));
         rotationInput.setText(f.getRotation());
+    }
+
+    private void clearInputs() {
+
+        funcStrInput.clear();
+        pathRangeInput.clear();
+        fRangeInit.clear();
+        fRangeEnd.clear();
+        funcVarInput.clear();
+        transXInput.clear();
+        transYInput.clear();
+        rotationInput.clear();
     }
 
 }

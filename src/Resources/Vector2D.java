@@ -15,7 +15,11 @@ public class Vector2D {
         genAngles();
     }
 
-    public Vector2D(float newTheta, float newMag) {
+    public Vector2D(float newTheta, float newMag, boolean isRad) {
+
+        if (!isRad) {
+            theta = Math.toRadians(theta);
+        }
 
         R = newMag;
         theta = newTheta;
@@ -46,16 +50,33 @@ public class Vector2D {
     public void genAngles() {
         genMag();
 
-        theta = Math.atan(components[1] / components[0]);
+        if (components[0] == 0 && components[1] == 0) {
+            theta = 0;
+        } else {
 
-        if (components[0] < 0) {
+            if (components[0] == 0) {
 
-            if (components[1] > 0) {
+                theta = Math.PI / 2;
 
-                theta += Math.PI;
-            } else if (components[1] < 0) {
+                if (components[1] < 0) {
+                    theta *= -1;
+                }
+            } else {
 
-                theta -= Math.PI;
+                theta = Math.atan(components[1] / components[0]);
+
+                if (components[0] < 0) {
+
+                    if (components[1] >= 0) {
+
+                        theta += Math.PI;
+                    } else if (components[1] < 0) {
+                        theta -= Math.PI;
+                    } else {
+
+                        theta = Math.PI;
+                    }
+                }
             }
         }
     }
@@ -82,12 +103,31 @@ public class Vector2D {
         return Arrays.copyOf(components, components.length);
     }
 
+    public Double getComponent(int component) {
+
+        if (component >= 0 && component < 2) {
+
+            return components[component];
+        }
+
+        return null;
+    }
+
     public String getName() {
 
         return name;
     }
 
     //---------- Vector Operations ----------//
+
+    public void setComponents(double[] newComp) {
+
+        if (newComp.length == 2) {
+
+            components = Arrays.copyOf(newComp, newComp.length);
+            genAngles();
+        }
+    }
 
     public void add(Vector2D term_two) {
 
@@ -102,7 +142,23 @@ public class Vector2D {
         add(invert(term_two));
     }
 
-    public Vector2D invert(Vector2D term_two) {
+    public static Vector2D add(Vector2D term_one, Vector2D term_two) {
+
+        double[] one_comp = term_one.getComponents();
+        double[] two_comp = term_two.getComponents();
+
+        double newX = one_comp[0] + two_comp[0];
+        double newY = one_comp[1] + two_comp[1];
+
+        return (new Vector2D(newX, newY));
+    }
+
+    public static Vector2D sub(Vector2D term_one, Vector2D term_two) {
+
+        return Vector2D.add(term_one, invert(term_two));
+    }
+
+    public static Vector2D invert(Vector2D term_two) {
 
         Vector2D iTwo = new Vector2D(term_two);
         iTwo.scale(-1);
@@ -167,8 +223,7 @@ public class Vector2D {
      */
     public void rotate(double radians) {
 
-        theta += radians % (2 * Math.PI);
-        theta = theta % (2 * Math.PI);
+        theta = (theta + radians) % (2 * Math.PI);
         genComp();
     }
 
@@ -176,6 +231,31 @@ public class Vector2D {
         String vector = "<" + components[0] + ", " + components[1] + ">";
 
         return vector;
+    }
+
+    public boolean equals(Vector2D compare) {
+
+        for (int c = 0; c < components.length; c++) {
+
+            if (compare.getComponent(c) != this.getComponent(c)) {
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static Vector2D[] copy(Vector2D[] original) {
+
+        Vector2D[] newList = new Vector2D[original.length];
+
+        for (int v = 0; v < original.length; v++) {
+
+            newList[v] = new Vector2D(original[v]);
+        }
+
+        return newList;
     }
 
     public static void main(String[] args) {

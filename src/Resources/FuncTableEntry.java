@@ -67,6 +67,17 @@ public class FuncTableEntry {
     }
 
     public String getVariable() {
+
         return variable;
+    }
+
+    public boolean equals(FuncTableEntry second) {
+
+        return (getFunction().equals(second.getFunction())
+                && getVariable().equals(second.getVariable())
+                && getTranslation().equals(second.getTranslation())
+                && getRotation().equals(second.getRotation())
+                && getTRange().equals(second.getTRange())
+                && getFuncRange().equals(second.getFuncRange()));
     }
 }

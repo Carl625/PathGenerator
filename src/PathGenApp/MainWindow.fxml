@@ -29,7 +29,7 @@
    <tabs>
       <Tab closable="false" text="Display and Edit">
          <content>
-            <Pane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="844.0" prefWidth="1274.0">
+            <Pane fx:id="mainPane" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#mainPaneClicked" prefHeight="844.0" prefWidth="1274.0">
                <children>
                   <GridPane hgap="10.0" prefHeight="278.0" prefWidth="559.0" vgap="10.0">
                      <columnConstraints>
