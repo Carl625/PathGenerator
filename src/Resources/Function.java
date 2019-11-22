@@ -1,8 +1,8 @@
 package Resources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Function {
 
@@ -1519,13 +1519,44 @@ public class Function {
         return inverse;
     }
 
-    public static double[] getZeroes() {
+    public double[] getZeroesNewton(double[] domain) {
+
+        return getZeroNewton(this, domain);
+    }
+
+    public static double[] getZeroNewton(Function originalFunc, double[] domain) {
 
         ArrayList<Double> zeroes = new ArrayList<Double>();
+        Function derivative = Function.constSimplify(Function.derivative(originalFunc));
 
-        // TODO: write the get zeroes method, but have to implement equation solver first, and then need to implement the inverter? maybe.
+        ArrayList<Pair<Double, Double>> points = new ArrayList<Pair<Double, Double>>();
 
-        return zeroes.stream().mapToDouble(d -> d).toArray();
+        for (double p = domain[0]; p < (domain[1] - domain[0]); p += 0.05) {
+
+            points.add(new Pair<Double, Double>(p, originalFunc.output(p)));
+        }
+
+        double max = points.stream().mapToDouble(Pair::get2).max().getAsDouble();
+        double min = points.stream().mapToDouble(Pair::get2).min().getAsDouble();
+        double threshold = (max - min) / 100;
+        double[] smallPoints = points.stream().filter(p -> (p.get1() < threshold)).mapToDouble(p -> p.get2()).toArray();
+
+        for (int p = 0; p < smallPoints.length; p++) {
+            // Newton's method
+            int resolution = 10;
+            double zero = smallPoints[p];
+
+            for (int a = 0; a < resolution; a++) {
+
+                zero = zero - (originalFunc.output(zero) / derivative.output(zero));
+            }
+
+            zeroes.add(zero);
+        }
+
+        double[] distinctZeroes = zeroes.stream().mapToDouble(z -> ((Math.round(z * Math.pow(10, 10))) / Math.pow(10, 10))).toArray();
+
+        return distinctZeroes;
     }
 
     public String toString() {

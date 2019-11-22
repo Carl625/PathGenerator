@@ -334,6 +334,106 @@ public class ParametricFunction2D {
         return Math.abs(getSignedCurvature(originalFunc, tValue));
     }
 
+    public double[] findBounds(double[] domain) {
+
+        Function x = rectangularComponents.get1();
+        Function y = rectangularComponents.get2();
+
+        Function dx_dt = Function.derivative(x);
+        Function dy_dt = Function.derivative(y);;
+
+        double[] horizontalZeroes = dx_dt.getZeroesNewton(domain);
+        double[] verticalZeroes = dy_dt.getZeroesNewton(domain);
+
+        // find max and mins
+        if (!(horizontalZeroes.length == 0 || verticalZeroes.length == 0)) {
+
+            double xMax = horizontalZeroes[0];
+            double xMin = horizontalZeroes[0];
+
+            for (int hz = 1; hz < horizontalZeroes.length; hz++) {
+
+                if (x.output(horizontalZeroes[hz]) > x.output(xMax)) {
+
+                    xMax = horizontalZeroes[hz];
+                }
+
+                if (x.output(horizontalZeroes[hz]) < x.output(xMin)) {
+
+                    xMin = horizontalZeroes[hz];
+                }
+            }
+
+            double yMax = verticalZeroes[0];
+            double yMin = verticalZeroes[0];
+
+            for (int vz = 1; vz < verticalZeroes.length; vz++) {
+
+                if (y.output(verticalZeroes[vz]) > y.output(yMax)) {
+
+                    yMax = verticalZeroes[vz];
+                }
+
+                if (y.output(verticalZeroes[vz]) < y.output(yMin)) {
+
+                    yMin = verticalZeroes[vz];
+                }
+            }
+
+            return (new double[] {xMin, yMin, xMax, yMax});
+        }
+
+        return null;
+    }
+
+    public double[] approximateBounds(double[] domain, double resolution) {
+
+        double[] xPoints = new double[(int) ((domain[1] - domain[0]) / resolution)];
+        double[] yPoints = new double[(int) ((domain[1] - domain[0]) / resolution)];
+
+        for (double t = domain[0]; t < domain[1]; t += resolution) {
+
+            int pointNum = (int) ((t - domain[0]) / resolution);
+
+            xPoints[pointNum] = rectangularComponents.get1().output(t);
+            yPoints[pointNum] = rectangularComponents.get1().output(t);
+        }
+
+        double xMin = xPoints[0];
+        double xMax = xPoints[0];
+
+        for (int hz = 1; hz < xPoints.length; hz++) {
+
+            if (xPoints[hz] > xMax) {
+
+                xMax = xPoints[hz];
+            }
+
+            if (xPoints[hz] < xMin) {
+
+                xMin = xPoints[hz];
+            }
+        }
+
+        double yMin = yPoints[0];
+        double yMax = yPoints[0];
+
+        for (int vz = 1; vz < yPoints.length; vz++) {
+
+            if (yPoints[vz] > yMax) {
+
+                yMax = yPoints[vz];
+            }
+
+            if (yPoints[vz] < yMin) {
+
+                yMin = yPoints[vz];
+            }
+        }
+
+        return (new double[] {xMin, yMin, xMax, yMax});
+    }
+
     public String toString() {
 
         String vector = "<";
