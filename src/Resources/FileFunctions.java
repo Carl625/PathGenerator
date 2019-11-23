@@ -1,6 +1,8 @@
 package Resources;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.*;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +18,16 @@ import java.util.stream.Stream;
 public class FileFunctions {
 
     /* --------- Files Processing and Statistics ---------*/
+
+    public static File getFile(String directory) {
+
+        return (new File(Paths.get(directory).toAbsolutePath().toString()));
+    }
+
+    public static File getFile(Path directory) {
+
+        return (new File(directory.toAbsolutePath().toString()));
+    }
 
     public static String getLocalPath(Path file, String rootFolder) {
 
@@ -205,215 +217,6 @@ public class FileFunctions {
         }
 
         return directories;
-    }
-
-    public static boolean checkStateMetadata(File metadata) {
-
-        if (metadata.exists()) {
-
-            String[] markers = new String[] {"TimeStamp:", "Files Changed:", "Files Deleted:", "Files Added:", "Backup Directory:", "Folders:", "<EOF>"};
-
-            ArrayList<String> metadataText = readLines(metadata);
-            Integer[] markerIndexes = Arrays.stream(markers).map(m -> metadataText.indexOf(m)).toArray(Integer[]::new);
-
-            for (int marker = 0; marker < markerIndexes.length; marker++) {
-
-                if (markerIndexes[marker] == -1) {
-
-                    return false;
-                }
-            }
-
-            for (int marker = 1; marker < markerIndexes.length; marker++) {
-
-                if (markerIndexes[marker] <= markerIndexes[marker - 1]) {
-
-                    return false;
-                }
-            }
-        } else {
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public static boolean checkArchiveMetadata(File metadata) {
-
-        if (metadata.exists()) {
-
-            String[] markers = new String[] {"Archive Name:", "Current Path:", "Trim Behavior:", "Automatic:", "<EOF>"};
-
-            ArrayList<String> metadataText = readLines(metadata);
-            Integer[] markerIndexes = Arrays.stream(markers).map(m -> metadataText.indexOf(m)).toArray(Integer[]::new);
-
-            for (int marker = 0; marker < markerIndexes.length; marker++) {
-
-                if (markerIndexes[marker] == -1) {
-
-                    return false;
-                }
-            }
-
-            for (int marker = 1; marker < markerIndexes.length; marker++) {
-
-                if (markerIndexes[marker] <= markerIndexes[marker - 1]) {
-
-                    return false;
-                }
-            }
-        } else {
-
-            return false;
-        }
-
-        return true;
-    }
-
-    // parses a given state metadata file
-    public static String[][] parseStateMetadata(File metadata) {
-
-        String[] markers = new String[] {"TimeStamp:", "Files Changed:", "Files Deleted:", "Files Added:", "Backup Directory:", "Folders:", "<EOF>"};
-
-        // identifies indexes of the data markers
-        ArrayList<String> metadataText = readLines(metadata);
-        Integer[] markerIndexes = Arrays.stream(markers).map(m -> metadataText.indexOf(m)).toArray(Integer[]::new);
-        String[][] data = new String[markerIndexes.length - 1][];
-
-        // separates the data
-        for (int dataSection = 0; dataSection < (markerIndexes.length - 1); dataSection++) {
-
-            data[dataSection] = metadataText.subList(markerIndexes[dataSection] + 1, markerIndexes[dataSection + 1]).toArray(new String[markerIndexes[dataSection + 1] - markerIndexes[dataSection] - 1]);
-        }
-
-        return data;
-    }
-
-    public static String[][] parseStateMetadataFail(File metadata) {
-
-        String[] markers = new String[] {"TimeStamp:", "Files Changed:", "Files Deleted:", "Files Added:", "Backup Directory:", "Folders:", "<EOF>"};
-
-        // identifies indexes of the data markers
-        ArrayList<String> metadataText = readLines(metadata);
-        Integer[] markerIndexes = Arrays.stream(markers).map(m -> metadataText.indexOf(m)).toArray(Integer[]::new);
-        String[][] data = new String[markerIndexes.length - 1][];
-
-        // separates the data
-        for (int dataSection = 0; dataSection < (markerIndexes.length - 1); dataSection++) {
-
-            if (markerIndexes[dataSection] != -1 && markerIndexes[dataSection + 1] != -1) {
-
-                data[dataSection] = metadataText.subList(markerIndexes[dataSection] + 1, markerIndexes[dataSection + 1]).toArray(new String[markerIndexes[dataSection + 1] - markerIndexes[dataSection] - 1]);
-            } else {
-
-                data[dataSection] = null;
-            }
-        }
-
-        return data;
-    }
-
-    public static void createStateMetadata(String[][] parsedMetadata, Path stateFolder) {
-
-        String[] markers = new String[] {"TimeStamp:", "Files Changed:", "Files Deleted:", "Files Added:", "Backup Directory:", "Folders:", "<EOF>"};
-
-        ArrayList<String> metadataLines = new ArrayList<String>();
-
-        for (int section = 0; section < parsedMetadata.length; section++) {
-
-            metadataLines.add(markers[section]);
-
-            for (int line = 0; line < parsedMetadata[section].length; line++) {
-
-                metadataLines.add(parsedMetadata[section][line]);
-            }
-        }
-
-        metadataLines.add(markers[markers.length - 1]);
-
-        if (stateFolder.toFile().isDirectory()) {
-
-            stateFolder = Paths.get(stateFolder.toString() + "\\metadata.txt");
-            //makeFile(stateFolder.toFile());
-            clearFile(stateFolder.toFile());
-        }
-
-        writeLines(stateFolder.toString(), metadataLines);
-    }
-
-    // parses a given archive metadata file
-    public static String[][] parseArchiveMetadata(File metadata) {
-
-        String[] markers = new String[] {"Archive Name:", "Current Path:", "Trim Behavior:", "Automatic:", "<EOF>"};
-
-        // identifies indexes of the data markers
-        ArrayList<String> metadataText = readLines(metadata);
-        Integer[] markerIndexes = Arrays.stream(markers).map(m -> metadataText.indexOf(m)).toArray(Integer[]::new);
-        String[][] data = new String[markerIndexes.length - 1][];
-
-        // separates the data
-        for (int dataSection = 0; dataSection < (markerIndexes.length - 1); dataSection++) {
-
-            data[dataSection] = metadataText.subList(markerIndexes[dataSection] + 1, markerIndexes[dataSection + 1]).toArray(new String[markerIndexes[dataSection + 1] - markerIndexes[dataSection] - 1]);
-        }
-
-        return data;
-    }
-
-    public static String[][] parseArchiveMetadataFail(File metadata) {
-
-        String[] markers = new String[] {"Archive Name:", "Current Path:", "Trim Behavior:", "Automatic:", "<EOF>"};
-
-        // identifies indexes of the data markers
-        ArrayList<String> metadataText = readLines(metadata);
-        Integer[] markerIndexes = Arrays.stream(markers).map(m -> metadataText.indexOf(m)).toArray(Integer[]::new);
-        String[][] data = new String[markerIndexes.length - 1][];
-
-        // separates the data
-        for (int dataSection = 0; dataSection < (markerIndexes.length - 1); dataSection++) {
-
-            if (markerIndexes[dataSection] != -1) {
-
-                data[dataSection] = metadataText.subList(markerIndexes[dataSection] + 1, markerIndexes[dataSection + 1]).toArray(new String[markerIndexes[dataSection + 1] - markerIndexes[dataSection] - 1]);
-            } else {
-
-                data[dataSection] = null;
-            }
-        }
-
-        return data;
-    }
-
-    public static void createArchiveMetadata(String[][] parsedMetadata, Path archiveFolder) {
-
-        String[] markers = new String[] {"Archive Name:", "Current Path:", "Trim Behavior:", "Automatic:", "<EOF>"};
-
-        ArrayList<String> metadataLines = new ArrayList<String>();
-
-        for (int section = 0; section < parsedMetadata.length; section++) {
-
-            metadataLines.add(markers[section]);
-
-            for (int line = 0; line < parsedMetadata[section].length; line++) {
-
-                metadataLines.add(parsedMetadata[section][line]);
-            }
-        }
-
-        metadataLines.add(markers[markers.length - 1]);
-
-        if (archiveFolder.toFile().isDirectory()) {
-
-            if (!Paths.get(archiveFolder.toString() + "\\.metadata").toFile().exists()) {
-                makeDir(Paths.get(archiveFolder.toString() + "\\.metadata").toFile());
-            }
-
-            archiveFolder = Paths.get(archiveFolder.toString() + "\\.metadata\\metadata.txt");
-            makeFile(archiveFolder.toFile());
-        }
-
-        writeLines(archiveFolder.toString(), metadataLines);
     }
 
     /* ---------- File Operations ---------- */

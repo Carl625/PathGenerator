@@ -1531,19 +1531,19 @@ public class Function {
 
         ArrayList<Pair<Double, Double>> points = new ArrayList<Pair<Double, Double>>();
 
-        for (double p = domain[0]; p < (domain[1] - domain[0]); p += 0.05) {
+        for (double p = domain[0]; p <= domain[1]; p += 0.02) {
 
             points.add(new Pair<Double, Double>(p, originalFunc.output(p)));
         }
 
         double max = points.stream().mapToDouble(Pair::get2).max().getAsDouble();
         double min = points.stream().mapToDouble(Pair::get2).min().getAsDouble();
-        double threshold = (max - min) / 100;
-        double[] smallPoints = points.stream().filter(p -> (p.get1() < threshold)).mapToDouble(p -> p.get2()).toArray();
-
+        double threshold = (max - min) / 300;
+        double[] smallPoints = points.stream().filter(p -> (Math.abs(p.get2()) < threshold)).mapToDouble(Pair::get1).toArray();
+        //System.out.println(Arrays.toString(smallPoints));
         for (int p = 0; p < smallPoints.length; p++) {
             // Newton's method
-            int resolution = 10;
+            int resolution = 30;
             double zero = smallPoints[p];
 
             for (int a = 0; a < resolution; a++) {
@@ -1554,7 +1554,7 @@ public class Function {
             zeroes.add(zero);
         }
 
-        double[] distinctZeroes = zeroes.stream().mapToDouble(z -> ((Math.round(z * Math.pow(10, 10))) / Math.pow(10, 10))).toArray();
+        double[] distinctZeroes = zeroes.stream().mapToDouble(z -> ((Math.round(z * Math.pow(10, 6))) / Math.pow(10, 6))).distinct().toArray(); // 6 decimal precision
 
         return distinctZeroes;
     }

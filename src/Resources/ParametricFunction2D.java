@@ -301,6 +301,11 @@ public class ParametricFunction2D {
 
     //---------- Function outputs ----------//
 
+    public Vector2D output(double tValue) {
+
+        return output(this, tValue);
+    }
+
     public static Vector2D output(ParametricFunction2D originalFunc, double tValue) {
 
         double x = originalFunc.getRectangularComponents().get1().output(tValue);
@@ -339,14 +344,16 @@ public class ParametricFunction2D {
         Function x = rectangularComponents.get1();
         Function y = rectangularComponents.get2();
 
-        Function dx_dt = Function.derivative(x);
-        Function dy_dt = Function.derivative(y);;
+        Function dx_dt = Function.constSimplify(Function.derivative(x));
+        Function dy_dt = Function.constSimplify(Function.derivative(y));
 
         double[] horizontalZeroes = dx_dt.getZeroesNewton(domain);
         double[] verticalZeroes = dy_dt.getZeroesNewton(domain);
+//        System.out.println("Horizontal Zeroes: " + Arrays.toString(horizontalZeroes));
+//        System.out.println("Vertical Zeroes: " + Arrays.toString(verticalZeroes));
 
         // find max and mins
-        if (!(horizontalZeroes.length == 0 || verticalZeroes.length == 0)) {
+        if (horizontalZeroes.length != 0 && verticalZeroes.length != 0) { // this fails with freshly parametrized functions
 
             double xMax = horizontalZeroes[0];
             double xMin = horizontalZeroes[0];
@@ -380,10 +387,49 @@ public class ParametricFunction2D {
                 }
             }
 
-            return (new double[] {xMin, yMin, xMax, yMax});
-        }
+            return (new double[] {x.output(xMin), y.output(yMin), x.output(xMax), y.output(yMax)});
+        } else if (horizontalZeroes.length == 0 && verticalZeroes.length != 0) {
 
-        return null;
+            double yMax = verticalZeroes[0];
+            double yMin = verticalZeroes[0];
+
+            for (int vz = 1; vz < verticalZeroes.length; vz++) {
+
+                if (y.output(verticalZeroes[vz]) > y.output(yMax)) {
+
+                    yMax = verticalZeroes[vz];
+                }
+
+                if (y.output(verticalZeroes[vz]) < y.output(yMin)) {
+
+                    yMin = verticalZeroes[vz];
+                }
+            }
+
+            return (new double[] {x.output(domain[0]), y.output(yMin), x.output(domain[1]), y.output(yMax)});
+        } else if (horizontalZeroes.length != 0) {
+
+            double xMax = horizontalZeroes[0];
+            double xMin = horizontalZeroes[0];
+
+            for (int hz = 1; hz < horizontalZeroes.length; hz++) {
+
+                if (x.output(horizontalZeroes[hz]) > x.output(xMax)) {
+
+                    xMax = horizontalZeroes[hz];
+                }
+
+                if (x.output(horizontalZeroes[hz]) < x.output(xMin)) {
+
+                    xMin = horizontalZeroes[hz];
+                }
+            }
+
+            return (new double[] {x.output(xMin), y.output(domain[0]), x.output(xMax), y.output(domain[1])});
+        } else {
+
+            return null;
+        }
     }
 
     public double[] approximateBounds(double[] domain, double resolution) {
@@ -396,7 +442,7 @@ public class ParametricFunction2D {
             int pointNum = (int) ((t - domain[0]) / resolution);
 
             xPoints[pointNum] = rectangularComponents.get1().output(t);
-            yPoints[pointNum] = rectangularComponents.get1().output(t);
+            yPoints[pointNum] = rectangularComponents.get2().output(t);
         }
 
         double xMin = xPoints[0];

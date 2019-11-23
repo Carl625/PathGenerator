@@ -40,6 +40,19 @@ public class ParametricPath {
         }
     }
 
+    public static boolean isValid(ParametricFunction2D[] orderedFunctions, Vector2D[] newTranslations, double[] newRanges, double[][] newDefRanges) {
+
+        boolean matching = (newRanges.length == orderedFunctions.length)
+                && (newDefRanges.length == orderedFunctions.length)
+                && (newTranslations.length == orderedFunctions.length);
+
+        if (!checkDefinedRanges(newDefRanges) || !allPositive(newRanges) || !matching || !checkTranslations(newTranslations, orderedFunctions, newDefRanges)) {
+            return false;
+        }
+
+        return true;
+    }
+
     public static double[][] generateTRanges(double[] orderedRanges) {
 
         double[][] newRanges = new double[orderedRanges.length][];
@@ -79,6 +92,11 @@ public class ParametricPath {
 
     private boolean checkTranslations() {
 
+        return checkTranslations(translations, rotatedFunctions, definedFunctionRanges);
+    }
+
+    private static boolean checkTranslations(Vector2D[] translations, ParametricFunction2D[] rotatedFunctions, double[][] definedFunctionRanges) {
+
         for (int t = 1; t < (translations.length - 1); t++) {
 
             Vector2D startTranslation = translations[t];
@@ -109,7 +127,7 @@ public class ParametricPath {
         return true;
     }
 
-    private static ParametricFunction2D[] parametrize(Function[] functions, double[] functionRotations) {
+    public static ParametricFunction2D[] parametrize(Function[] functions, double[] functionRotations) {
 
         ParametricFunction2D[] pathComponents = new ParametricFunction2D[functions.length];
 

@@ -2,6 +2,8 @@ package PathGenApp;
 
 import Resources.*;
 import javafx.event.ActionEvent;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,13 +11,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class WindowController {
@@ -32,7 +39,9 @@ public class WindowController {
 
     public TableView funcInfoTable;
 
-    public ImageView fieldDisplay;
+    public Canvas fieldDisplay;
+    public GraphicsContext graphics;
+    public Image field;
 
     public TextField funcStrInput;
     public TextField pathRangeInput;
@@ -74,8 +83,7 @@ public class WindowController {
     private ArrayList<Double> tRanges;
     private ArrayList<double[]> definedFunctionRanges;
 
-    private int funcSelected = -1; // add the listener for the selection model
-    private boolean modifyFinished = true;
+    private int funcSelected = -1;
 
     public void initialize() {
 
@@ -104,8 +112,6 @@ public class WindowController {
         tRanges = new ArrayList<Double>();
         definedFunctionRanges = new ArrayList<double[]>();
 
-        Image field = null;
-
         try {
             FileInputStream f = new FileInputStream("../PathGenerator/src/Resources/Images/topviewfield.png");
             field = new Image(f);
@@ -113,7 +119,8 @@ public class WindowController {
             e.printStackTrace();
         }
 
-        fieldDisplay.setImage(field);
+        graphics = fieldDisplay.getGraphicsContext2D();
+        resetField();
 
         // debug
         FuncTableEntry f = new FuncTableEntry("(x + 2)", 0.25, new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
@@ -200,7 +207,7 @@ public class WindowController {
         double rotation = 0.0;
 
         try {
-            rotation = Double.parseDouble(rotationInput.getText());
+            rotation = Math.toRadians(Double.parseDouble(rotationInput.getText()));
         } catch (Exception e) {
             properlyFormatted = false;
         }
@@ -313,7 +320,7 @@ public class WindowController {
     // image view
     public void fieldClicked(MouseEvent mouseEvent) {
 
-        // TODO: implement cool file functions to load and save images
+        
     }
 
     public void dragDetected(MouseEvent mouseEvent) {
@@ -326,37 +333,101 @@ public class WindowController {
 
     /* ---------- Data Methods ----------*/
 
+    private void resetField() {
+        graphics.drawImage(field, 0, 0);
+    }
+
+    private void regenFunctions() {
+
+        Function[] orderedFunctions = functions.toArray(new Function[0]);
+        double[] newAngles = rotations.stream().mapToDouble(d -> d).toArray();
+
+        displayedFunctions.addAll(Arrays.asList(ParametricPath.parametrize(orderedFunctions, newAngles)));
+    }
+
     private void updateDisplay() {
-
-        // draw
-
-
-
-        // making sure it's good to export or not
-        boolean exportReady = true;
-
+        // variables
         Function[] orderedFunctions = functions.toArray(new Function[0]);
         Vector2D[] newTranslations = translations.toArray(new Vector2D[0]);
         double[] newTRanges = tRanges.stream().mapToDouble(d -> d).toArray();
         double[][] newDefRanges = new ArrayList<double[]>(definedFunctionRanges).toArray(new double[definedFunctionRanges.size()][]);
         double[] newAngles = rotations.stream().mapToDouble(d -> d).toArray();
 
-        ParametricPath path = null;
+        // draw
+        resetField();
+        regenFunctions();
 
-        try {
-            path = new ParametricPath(orderedFunctions, newTranslations, newTRanges, newDefRanges, newAngles);
-        } catch (FunctionFormatException e) {
-            exportReady = false;
+        for (int p = 0; p < displayedFunctions.size(); p++) {
+
+            // prepare the canvas
+            double[] funcBoundingBox = displayedFunctions.get(p).findBounds(newDefRanges[p]);
+            double xRange = funcBoundingBox[2] - funcBoundingBox[0];
+            double yRange = funcBoundingBox[3] - funcBoundingBox[1];
+            BufferedImage func = new BufferedImage((int) xRange, (int) yRange, BufferedImage.TYPE_INT_RGB);
+
+            // draw the function
+            drawFunction(displayedFunctions.get(p), new Vector2D(funcBoundingBox[0], funcBoundingBox[1]), newDefRanges[p], func);
+
+            // scale the canvas to the right size
+            double currentScale = (xRange * yRange) / (fieldDisplay.getBoundsInLocal().getWidth() * fieldDisplay.getBoundsInLocal().getHeight());
+            double calculatedScale = scales.get(p) / currentScale;
+
+            // draw the frickin function my dudes
+            draw(fieldDisplay, func, (int) newTranslations[p].getComponent(0).doubleValue(), (int) newTranslations[p].getComponent(1).doubleValue(), calculatedScale);
         }
 
-        if (exportReady) {
+        // making sure it's good to export or not
+        boolean exportReady = ParametricPath.isValid(ParametricPath.parametrize(orderedFunctions, newAngles), newTranslations, newTRanges, newDefRanges);
 
+        if (exportReady) {
             exportFunction.setDisable(false);
         } else {
-
             exportFunction.setDisable(true);
         }
 
+    }
+
+    private void drawFunction(ParametricFunction2D p, Vector2D offset, double[] funcRange, BufferedImage canvas) {
+
+        for (double t = funcRange[0]; t <= funcRange[1]; t++) {
+
+            Vector2D point = p.output(t);
+            point.add(offset);
+
+            if ((point.getComponent(0) > 0 && point.getComponent(0) < canvas.getWidth()) && (point.getComponent(1) > 0 && point.getComponent(1) < canvas.getHeight())) {
+
+                canvas.setRGB((int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue(), java.awt.Color.green.getRGB());
+            }
+        }
+    }
+
+    public void draw(Canvas c, BufferedImage image) {
+
+        draw(c, image, 0, 0);
+    }
+
+    public void draw(Canvas c, BufferedImage image, int xOffset, int yOffset) {
+
+        draw(c, image, xOffset, yOffset, 1.0);
+    }
+
+    public void draw(Canvas c, BufferedImage image, int xOffset, int yOffset, double scale) {
+
+        PixelWriter drawInterface = c.getGraphicsContext2D().getPixelWriter();
+
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+
+                int RGB = image.getRGB(x, y);
+                java.awt.Color newColor = new java.awt.Color(RGB);
+                int xPixel = (int) ((x * scale) + xOffset);
+                int yPixel = (int) ((y * scale) + yOffset);
+
+                if ((xPixel >= 0 && xPixel < c.getWidth()) && (yPixel >= 0 && yPixel < c.getHeight()) ) {
+                    drawInterface.setColor(xPixel, yPixel, new Color(newColor.getRed(), newColor.getGreen(), newColor.getBlue(), newColor.getAlpha()));
+                }
+            }
+        }
     }
 
     private void loadRow(int rowNum) {
@@ -392,26 +463,14 @@ public class WindowController {
 
 
     // drawing algorithms
-    public Image draw(ParametricFunction2D newFunc, double initT, double deltaT, double fRange , boolean polarity) {
+    public Image draw(ParametricFunction2D newFunc, double deltaT, double[] fRange , boolean polarity) {
 
         Pair<Function, Function> process;
-        double xOffset = 0;
-        double yOffset = 0;
-
-        if (polarity) {
-            process = newFunc.getPolarComponents();
-            double r = process.get1().output(initT);
-            double theta = process.get2().output(initT);
-
-            xOffset = r * Math.cos(theta);
-            yOffset = r * Math.sin(theta);
-        } else {
-            process = newFunc.getRectangularComponents();
-            xOffset = process.get1().output(initT);
-            yOffset = process.get2().output(initT);
-        }
+        double[] funcBounds = newFunc.findBounds(fRange);
+        Vector2D offset = new Vector2D(funcBounds[0], funcBounds[1]);
 
         ArrayList<Pair<Double, Double>> points = new ArrayList<Pair<Double, Double>>();
+
 
 //        Coordinate lastCoord = null; // TODO: IMPLEMENT GOOD THING
 //
