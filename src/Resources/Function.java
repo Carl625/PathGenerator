@@ -1,8 +1,8 @@
 package Resources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Function {
 
@@ -17,7 +17,7 @@ public class Function {
     public enum operation {addition, subtraction, multiplication, division, exponent};
     private String funcVariable;
     private HashMap<String, Double> constantList;
-    private ArrayList<Node> operationsTree; // ArrayList<Resources.Pair<Bounds<Start, End>, Relatives<Parent, Children<Positions>>>>
+    private ArrayList<Node> operationsTree; // ArrayList<Pair<Bounds<Start, End>, Relatives<Parent, Children<Positions>>>>
 
     private boolean parseDebug;
 
@@ -74,7 +74,7 @@ public class Function {
         ArrayList<Node> functionStructure = new ArrayList<Node>();
 
         // checking for smaller functions inside
-        parseDebug("\n+ New Resources.Function: " + function);
+        parseDebug("\n+ New Function: " + function);
         function = function.substring(1, function.length() - 1); // remove garuanteed start and end parentheses
         parseDebug("Stripped function: " + function + "\n");
         ArrayList<Pair<Integer, Integer>> subFunctions = getSubFuncIndex(function);
@@ -89,7 +89,7 @@ public class Function {
         parseDebug("\n");
 
         if (subFunctions.size() == 0) { // this is the base case of having a combination of a total of two variables and constants w/ one connecting operation
-            String[] components = function.split(" ");
+            String[] components = removeSpaces(function.split(" "));
 
             if (components.length == 1) {
 
@@ -328,9 +328,9 @@ public class Function {
                 link.setChild2(funcAfter);
 
                 // add them to the linked subfunctions list
-                parseDebug("\nResources.Function Before: " + funcBefore);
+                parseDebug("\nFunction Before: " + funcBefore);
                 parseDebug("Link: " + link);
-                parseDebug("Resources.Function After: " + funcAfter + "\n");
+                parseDebug("Function After: " + funcAfter + "\n");
 
                 linkedSubFunctions.add(link);
                 linkedSubFunctions.add(funcBefore);
@@ -359,7 +359,7 @@ public class Function {
 
                 if (subFunctionLinks.size() == 1 && !"+-*/^".contains(String.valueOf(subject))) {
 
-                    throw new FunctionFormatException("Trancendental Resources.Function misspelled: " + subject + " at: " + node , (new Exception()).getCause());
+                    throw new FunctionFormatException("Trancendental Function misspelled: " + subject + " at: " + node , (new Exception()).getCause());
                 }
             }
         }
@@ -398,7 +398,7 @@ public class Function {
         return root;
     }
 
-    //---------- Resources.Function Evaluation ----------//
+    //---------- Function Evaluation ----------//
 
     public double output(double input) {
 
@@ -531,6 +531,9 @@ public class Function {
                         break;
                     case "sgn":
                         output = Math.signum(child1Val);
+                        break;
+                    case "abs":
+                        output = Math.abs(child1Val);
                         break;
                 }
                 break;
@@ -721,7 +724,7 @@ public class Function {
         return false;
     }
 
-    //---------- Public Resources.Function Operations ----------//
+    //---------- Public Function Operations ----------//
 
     public static Function makeFunction(Node tree, String variable) {
 
@@ -1047,6 +1050,11 @@ public class Function {
                     case "sgn":
                         functionDerivative = new Node(Node.paramType.Const, "0");
                         break;
+                    case "abs":
+                        square = Function.operate(root.getChild1(), new Node(Node.paramType.Const, "2"), "^");
+                        sqRoot = Function.operate(square, new Node(Node.paramType.Const, "0.5"), "^");
+                        functionDerivative = Function.derivative(sqRoot, variable);
+                        break;
                 }
 
                 dRoot = Function.operate(functionDerivative, subDerivative1, "*");
@@ -1056,12 +1064,12 @@ public class Function {
         return dRoot;
     }
 
-    public static Function simplify(Function originalFunc) {
+    public static Function constSimplify(Function originalFunc) {
 
-        return Function.makeFunction(simplify(originalFunc.getRoot(), originalFunc.getVariable()), originalFunc.getVariable());
+        return Function.makeFunction(constSimplify(originalFunc.getRoot(), originalFunc.getVariable()), originalFunc.getVariable());
     }
 
-    public static Node simplify(Node originalFunc, String variable) {
+    public static Node constSimplify(Node originalFunc, String variable) {
 
         Node simplified = originalFunc.loneClone();
 
@@ -1089,11 +1097,11 @@ public class Function {
                                     break;
                                 case Operation:
 
-                                    newChild1 = simplify(originalFunc.getChild1(), variable);
+                                    newChild1 = constSimplify(originalFunc.getChild1(), variable);
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild1().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild1().getChild1(), variable);
                                     newChild1 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild1().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1109,11 +1117,11 @@ public class Function {
                                     break;
                                 case Operation:
 
-                                    newChild2 = simplify(originalFunc.getChild2(), variable);
+                                    newChild2 = constSimplify(originalFunc.getChild2(), variable);
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild2().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild2().getChild1(), variable);
                                     newChild2 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild2().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1188,7 +1196,7 @@ public class Function {
                                     break;
                                 case Operation:
 
-                                    newChild1 = simplify(originalFunc.getChild1(), variable);
+                                    newChild1 = constSimplify(originalFunc.getChild1(), variable);
 
                                     if (newChild1.getType().equals(Node.paramType.Const) && newChild1.getVal().equals("1.0")) {
                                         newChild1 = null;
@@ -1200,7 +1208,7 @@ public class Function {
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild1().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild1().getChild1(), variable);
                                     newChild1 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild1().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1216,7 +1224,7 @@ public class Function {
                                     }
                                     break;
                                 case Operation:
-                                    newChild2 = simplify(originalFunc.getChild2(), variable);
+                                    newChild2 = constSimplify(originalFunc.getChild2(), variable);
 
                                     if (newChild2.getType().equals(Node.paramType.Const) && newChild2.getVal().equals("1.0")) {
                                         newChild2 = null;
@@ -1228,7 +1236,7 @@ public class Function {
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild2().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild2().getChild1(), variable);
                                     newChild2 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild2().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1311,11 +1319,11 @@ public class Function {
                                     break;
                                 case Operation:
 
-                                    newChild1 = simplify(originalFunc.getChild1(), variable);
+                                    newChild1 = constSimplify(originalFunc.getChild1(), variable);
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild1().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild1().getChild1(), variable);
                                     newChild1 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild1().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1336,7 +1344,7 @@ public class Function {
                                     break;
                                 case Operation:
 
-                                    newChild2 = simplify(originalFunc.getChild2(), variable);
+                                    newChild2 = constSimplify(originalFunc.getChild2(), variable);
 
                                     if (newChild2.getType().equals(Node.paramType.Const) && newChild2.getVal().equals("1.0")) {
                                         newChild2 = null;
@@ -1344,7 +1352,7 @@ public class Function {
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild2().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild2().getChild1(), variable);
                                     newChild2 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild2().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1393,7 +1401,7 @@ public class Function {
                                     break;
                                 case Operation:
 
-                                    newChild1 = simplify(originalFunc.getChild1(), variable);
+                                    newChild1 = constSimplify(originalFunc.getChild1(), variable);
 
                                     if (newChild1.getType().equals(Node.paramType.Const) && newChild1.getVal().equals("1.0")) {
                                         newChild1 = null;
@@ -1401,7 +1409,7 @@ public class Function {
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild1().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild1().getChild1(), variable);
                                     newChild1 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild1().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1423,7 +1431,7 @@ public class Function {
                                     break;
                                 case Operation:
 
-                                    newChild2 = simplify(originalFunc.getChild2(), variable);
+                                    newChild2 = constSimplify(originalFunc.getChild2(), variable);
 
                                     if (newChild2.getType().equals(Node.paramType.Const) && newChild2.getVal().equals("1.0")) {
                                         newChild2 = null;
@@ -1431,7 +1439,7 @@ public class Function {
                                     break;
                                 case T_FUNC:
 
-                                    Node innerFuncSimplified = simplify(originalFunc.getChild2().getChild1(), variable);
+                                    Node innerFuncSimplified = constSimplify(originalFunc.getChild2().getChild1(), variable);
                                     newChild2 = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getChild2().getT_FUNC_TYPE());
                                     break;
                             }
@@ -1467,7 +1475,7 @@ public class Function {
                 break;
             case T_FUNC:
 
-                Node innerFuncSimplified = simplify(originalFunc.getChild1(), variable);
+                Node innerFuncSimplified = constSimplify(originalFunc.getChild1(), variable);
                 simplified = Function.composeTFUNC(innerFuncSimplified, variable, originalFunc.getT_FUNC_TYPE());
                 break;
         }
@@ -1481,9 +1489,24 @@ public class Function {
         return simplified;
     }
 
+    public static Function varSimplify(Function originalFunc) {
+
+        return Function.makeFunction(varSimplify(originalFunc.getRoot(), originalFunc.getVariable()), originalFunc.getVariable());
+    }
+
+    public static Node varSimplify(Node originalFunc, String variable) {
+
+        Node simplified = originalFunc.loneClone();
+
+        // do good things inside here
+
+
+        return simplified;
+    }
+
     public static Function inverse(Function originalFunc) {
 
-        return Function.makeFunction(simplify(originalFunc.getRoot(), originalFunc.getVariable()), originalFunc.getVariable());
+        return Function.makeFunction(constSimplify(originalFunc.getRoot(), originalFunc.getVariable()), originalFunc.getVariable());
     }
 
     public static Node inverse(Node originalFunc, String variable) {
@@ -1494,6 +1517,46 @@ public class Function {
         // do it recursively!
 
         return inverse;
+    }
+
+    public double[] getZeroesNewton(double[] domain) {
+
+        return getZeroNewton(this, domain);
+    }
+
+    public static double[] getZeroNewton(Function originalFunc, double[] domain) {
+
+        ArrayList<Double> zeroes = new ArrayList<Double>();
+        Function derivative = Function.constSimplify(Function.derivative(originalFunc));
+
+        ArrayList<Pair<Double, Double>> points = new ArrayList<Pair<Double, Double>>();
+
+        for (double p = domain[0]; p <= domain[1]; p += 0.02) {
+
+            points.add(new Pair<Double, Double>(p, originalFunc.output(p)));
+        }
+
+        double max = points.stream().mapToDouble(Pair::get2).max().getAsDouble();
+        double min = points.stream().mapToDouble(Pair::get2).min().getAsDouble();
+        double threshold = (max - min) / 300;
+        double[] smallPoints = points.stream().filter(p -> (Math.abs(p.get2()) < threshold)).mapToDouble(Pair::get1).toArray();
+        //System.out.println(Arrays.toString(smallPoints));
+        for (int p = 0; p < smallPoints.length; p++) {
+            // Newton's method
+            int resolution = 30;
+            double zero = smallPoints[p];
+
+            for (int a = 0; a < resolution; a++) {
+
+                zero = zero - (originalFunc.output(zero) / derivative.output(zero));
+            }
+
+            zeroes.add(zero);
+        }
+
+        double[] distinctZeroes = zeroes.stream().mapToDouble(z -> ((Math.round(z * Math.pow(10, 6))) / Math.pow(10, 6))).distinct().toArray(); // 6 decimal precision
+
+        return distinctZeroes;
     }
 
     public String toString() {
@@ -1524,6 +1587,18 @@ public class Function {
         }
 
         return function;
+    }
+
+    public static Function[] copy(Function[] original) {
+
+        Function[] newList = new Function[original.length];
+
+        for (int f = 0; f < original.length; f++) {
+
+            newList[f] = new Function(original[f].getRoot(), original[f].getVariable(), original[f].getConstantList(), false);
+        }
+
+        return newList;
     }
 
     public void parseDebug(String log) {
@@ -1617,45 +1692,45 @@ public class Function {
     public static void main(String[] args) {
         testFunctions(0,100);
 
-//        Resources.Function quadratic = new Resources.Function("((x ^ 2) + (2 * x))", "x", new HashMap<String, Double>());
-//        Resources.Node newFunc = Resources.Function.composeTFUNC(quadratic.getRoot(), quadratic.getVariable(), Resources.Node.T_FUNC_TYPES.sin);
-//        System.out.println(Resources.Function.rebuildTree(newFunc));
+//        Function quadratic = new Function("((x ^ 2) + (2 * x))", "x", new HashMap<String, Double>());
+//        Node newFunc = Function.composeTFUNC(quadratic.getRoot(), quadratic.getVariable(), Node.T_FUNC_TYPES.sin);
+//        System.out.println(Function.rebuildTree(newFunc));
 //
-//        Resources.Function sine = new Resources.Function("(sin(x))", "x", new HashMap<String, Double>());
-//        Resources.Function complexSinusoid =  new Resources.Function("(x + ((sin(3 * x)) ^ x))", "x", new HashMap<String, Double>());
-//        Resources.Function cardoid = new Resources.Function("(1 + (sin(x)))", "x", new HashMap<String, Double>());
-        //Resources.Function atan2 = new Resources.Function("(atan2((x ^ 2) / (x + 4)))", "x", new HashMap<String, Double>());
+//        Function sine = new Function("(sin(x))", "x", new HashMap<String, Double>());
+//        Function complexSinusoid =  new Function("(x + ((sin(3 * x)) ^ x))", "x", new HashMap<String, Double>());
+//        Function cardoid = new Function("(1 + (sin(x)))", "x", new HashMap<String, Double>());
+        //Function atan2 = new Function("(atan2((x ^ 2) / (x + 4)))", "x", new HashMap<String, Double>());
 
-//        Resources.Function parabola = new Resources.Function("(x ^ 2)", "x", new HashMap<String, Double>());
-//        Resources.Function derivative1 = Resources.Function.derivative(parabola);
-//        Resources.Function two_X = new Resources.Function("(2 * x)", "x", new HashMap<String, Double>());
+//        Function parabola = new Function("(x ^ 2)", "x", new HashMap<String, Double>());
+//        Function derivative1 = Function.derivative(parabola);
+//        Function two_X = new Function("(2 * x)", "x", new HashMap<String, Double>());
 //        System.out.println(derivative1.output(-10));
 //        System.out.println(two_X.output(-10));
 //        System.out.println(derivative1);
 
         Function polynomial = new Function("((((6 * (x ^ 3)) + (4.9 * (x ^ 2))) + (3.5 * x)) + 21.34)", "x", new HashMap<String, Double>() );
-        Function derivative2 = Function.simplify(Function.derivative(polynomial));
+        Function derivative2 = Function.constSimplify(Function.derivative(polynomial));
         Function polyDeriv = new Function("(((18 * (x ^ 2)) + (9.8 * x)) + 3.5)", "x", new HashMap<String, Double>());
 
         System.out.println("Polynomial: " + polynomial);
         System.out.println("Manual Polynomial derivative: " + polyDeriv);
         System.out.println("Calculated Polynomial derivative: " + derivative2 + "\n");
 
-//        Resources.Function additionSimplified = Resources.Function.simplify(new Resources.Function("((6.0 + x) + 3.0)", "x", new HashMap<String, Double>()));
+//        Function additionSimplified = Function.simplify(new Function("((6.0 + x) + 3.0)", "x", new HashMap<String, Double>()));
 //        System.out.println(additionSimplified);
 //
-//        Resources.Function multiplicationSimplified = Resources.Function.simplify(new Resources.Function("((3 * x) * 6)", "x", new HashMap<String, Double>()));
+//        Function multiplicationSimplified = Function.simplify(new Function("((3 * x) * 6)", "x", new HashMap<String, Double>()));
 //        System.out.println(multiplicationSimplified);
 
-//        Resources.Function inefficient = new Resources.Function("((x ^ (2 * 8)) + (3 * (x * 1)))", "x", new HashMap<String, Double>());
+//        Function inefficient = new Function("((x ^ (2 * 8)) + (3 * (x * 1)))", "x", new HashMap<String, Double>());
 //        System.out.println(inefficient);
-//        Resources.Function efficient = Resources.Function.simplify(inefficient);
+//        Function efficient = Function.simplify(inefficient);
 //        System.out.println(efficient.getOperationsTree());
 //        System.out.println(efficient);
 
         String longest = "(((((3 * 5) * 45) + (x * (x ^ 3))) + (3 * (x / (3 * 9)))) * ((x / 4) ^ x))";
         Function longestFunction = new Function(longest, "x", new HashMap<String, Double>());
-        System.out.println("Longest Resources.Function: " + longestFunction);
-        System.out.println("Derivative of longest: " + Function.simplify(longestFunction));
+        System.out.println("Longest Function: " + longestFunction);
+        System.out.println("Derivative of longest: " + Function.constSimplify(longestFunction));
     }
 }

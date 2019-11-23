@@ -71,7 +71,7 @@ public class FTCParamFuncGrapherTester extends FTCParametricFunctionGrapher {
 		Function parabola = new Function("(x ^ 2)", "x", new HashMap<String, Double>());
 		ParametricFunction2D parabolaParametric = new ParametricFunction2D(parabola, false);
 		
-		Function derivative1 = Function.simplify(Function.derivative(parabola));
+		Function derivative1 = Function.constSimplify(Function.derivative(parabola));
 		System.out.println(derivative1);
 		ParametricFunction2D derivParametric = new ParametricFunction2D(derivative1, false);
 		

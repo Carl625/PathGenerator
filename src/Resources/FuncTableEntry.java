@@ -9,16 +9,16 @@ public class FuncTableEntry {
     private double[] fRange;
     private double rotation;
     private double tRange;
-    private String variable;
+    private double scale;
 
-    public FuncTableEntry(String newFuncString, String newVar, Vector2D newTranslation, double newRotation, double newTRange, double[] newFRange) {
+    public FuncTableEntry(String newFuncString, double newScale, Vector2D newTranslation, double newRotation, double newTRange, double[] newFRange) {
 
         funcString = newFuncString;
         translation = newTranslation;
         rotation = newRotation;
         tRange = newTRange;
         fRange = newFRange;
-        variable = newVar;
+        scale = newScale;
     }
 
     public String getFunction() {
@@ -66,7 +66,23 @@ public class FuncTableEntry {
         return fRange;
     }
 
-    public String getVariable() {
-        return variable;
+    public String getScale() {
+
+        return String.valueOf(scale);
+    }
+
+    public double getScaleVar() {
+
+        return scale;
+    }
+
+    public boolean equals(FuncTableEntry second) {
+
+        return (getFunction().equals(second.getFunction())
+                && getScale().equals(second.getScale())
+                && getTranslation().equals(second.getTranslation())
+                && getRotation().equals(second.getRotation())
+                && getTRange().equals(second.getTRange())
+                && getFuncRange().equals(second.getFuncRange()));
     }
 }

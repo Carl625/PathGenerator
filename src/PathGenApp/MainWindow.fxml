@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -29,7 +30,7 @@
    <tabs>
       <Tab closable="false" text="Display and Edit">
          <content>
-            <Pane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="844.0" prefWidth="1274.0">
+            <Pane fx:id="mainPane" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#mainPaneClicked" prefHeight="844.0" prefWidth="1274.0">
                <children>
                   <GridPane hgap="10.0" prefHeight="278.0" prefWidth="559.0" vgap="10.0">
                      <columnConstraints>
@@ -70,18 +71,18 @@
                         <TextField fx:id="transXInput" layoutX="158.0" layoutY="70.0" onAction="#setTransX" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <TextField fx:id="transYInput" layoutX="20.0" layoutY="160.0" onAction="#setTransY" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                         <TextField fx:id="rotationInput" layoutX="158.0" layoutY="160.0" onAction="#setRotation" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                        <Label fx:id="funcVarLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Variable" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="2" />
-                        <TextField fx:id="funcVarInput" layoutX="20.0" layoutY="84.0" onAction="#setFuncVar" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="3" />
+                        <Label fx:id="funcScaleLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Scale" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="2" />
+                        <TextField fx:id="funcScaleInput" layoutX="20.0" layoutY="84.0" onAction="#setFuncVar" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="3" />
                      </children>
                   </GridPane>
-                  <ImageView fx:id="fieldDisplay" fitHeight="700.0" fitWidth="700.0" layoutX="568.0" layoutY="14.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" pickOnBounds="true" preserveRatio="true" />
                   <TableView fx:id="funcInfoTable" layoutX="1.0" layoutY="278.0" prefHeight="565.0" prefWidth="557.0">
                      <columns>
-                        <TableColumn fx:id="funcColumn" editable="false" prefWidth="217.0" resizable="false" sortable="false" text="Function" />
-                        <TableColumn fx:id="transColumn" editable="false" prefWidth="98.0" resizable="false" sortable="false" text="Translation" />
-                        <TableColumn fx:id="rotColumn" editable="false" prefWidth="73.0" resizable="false" sortable="false" text="Rotation" />
-                        <TableColumn fx:id="tRangeColumn" editable="false" prefWidth="73.0" resizable="false" sortable="false" text="tRange" />
-                        <TableColumn fx:id="fRangeColumn" editable="false" prefWidth="95.0" resizable="false" sortable="false" text="Func Range" />
+                        <TableColumn fx:id="funcColumn" editable="false" prefWidth="164.0" resizable="false" sortable="false" text="Function" />
+                        <TableColumn fx:id="scaleColumn" editable="false" prefWidth="67.0" resizable="false" sortable="false" text="Scale" />
+                        <TableColumn fx:id="transColumn" editable="false" prefWidth="106.0" resizable="false" sortable="false" text="Translation" />
+                        <TableColumn fx:id="rotColumn" editable="false" resizable="false" sortable="false" text="Rotation" />
+                        <TableColumn fx:id="tRangeColumn" editable="false" prefWidth="64.0" resizable="false" sortable="false" text="tRange" />
+                        <TableColumn fx:id="fRangeColumn" editable="false" prefWidth="75.0" resizable="false" sortable="false" text="fRange" />
                      </columns>
                   </TableView>
                   <Pane fx:id="telemetryPane" layoutX="562.0" layoutY="713.0" prefHeight="128.0" prefWidth="714.0">
@@ -98,6 +99,7 @@
                         </ScrollPane>
                      </children>
                   </Pane>
+                  <Canvas fx:id="fieldDisplay" height="702.0" layoutX="567.0" layoutY="13.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" width="703.0" />
                </children>
             </Pane>
          </content>
