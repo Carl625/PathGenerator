@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Point3D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<TabPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="PathGenApp.WindowController">
+   <tabs>
+      <Tab closable="false" text="Display and Edit">
+         <content>
+            <Pane maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="844.0" prefWidth="1274.0">
+               <children>
+                  <GridPane hgap="10.0" prefHeight="278.0" prefWidth="559.0" vgap="10.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                     <rotationAxis>
+                        <Point3D />
+                     </rotationAxis>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Button fx:id="deleteFunction" mnemonicParsing="false" onAction="#deleteFunc" prefHeight="77.0" prefWidth="173.0" text="Delete" GridPane.rowIndex="4" />
+                        <Button fx:id="exportFunction" layoutX="386.0" layoutY="221.0" mnemonicParsing="false" onAction="#exportFunc" prefHeight="77.0" prefWidth="173.0" text="Export" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Button fx:id="genFunction" layoutX="20.0" layoutY="221.0" mnemonicParsing="false" onAction="#genFunc" prefHeight="77.0" prefWidth="173.0" text="Generate" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <TextField fx:id="funcStrInput" onAction="#setFuncString" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="1" />
+                        <TextField fx:id="pathRangeInput" layoutX="20.0" layoutY="103.0" onAction="#setPathRange" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="fRangeInit" layoutX="203.0" layoutY="103.0" onAction="#setInitFuncLimit" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Label fx:id="functionStrLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Function String" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" />
+                        <Label fx:id="tRangeLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Path Range" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
+                        <Label fx:id="fRangeInitLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="158.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range Init" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
+                        <Label fx:id="fRangeEndLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range End" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" />
+                        <TextField fx:id="fRangeEnd" layoutX="295.0" layoutY="70.0" onAction="#setEndFuncLimit" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <Label fx:id="transXLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Translation X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label fx:id="transYLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Translation Y" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Label fx:id="rotationLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Rotation (Degrees)" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <TextField fx:id="transXInput" layoutX="158.0" layoutY="70.0" onAction="#setTransX" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextField fx:id="transYInput" layoutX="20.0" layoutY="160.0" onAction="#setTransY" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <TextField fx:id="rotationInput" layoutX="158.0" layoutY="160.0" onAction="#setRotation" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                        <Label fx:id="funcVarLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Variable" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="2" />
+                        <TextField fx:id="funcVarInput" layoutX="20.0" layoutY="84.0" onAction="#setFuncVar" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="3" />
+                     </children>
+                  </GridPane>
+                  <ImageView fx:id="fieldDisplay" fitHeight="700.0" fitWidth="700.0" layoutX="568.0" layoutY="14.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" pickOnBounds="true" preserveRatio="true" />
+                  <TableView fx:id="funcInfoTable" layoutX="1.0" layoutY="278.0" prefHeight="565.0" prefWidth="557.0">
+                     <columns>
+                        <TableColumn fx:id="funcColumn" editable="false" prefWidth="217.0" resizable="false" sortable="false" text="Function" />
+                        <TableColumn fx:id="transColumn" editable="false" prefWidth="98.0" resizable="false" sortable="false" text="Translation" />
+                        <TableColumn fx:id="rotColumn" editable="false" prefWidth="73.0" resizable="false" sortable="false" text="Rotation" />
+                        <TableColumn fx:id="tRangeColumn" editable="false" prefWidth="73.0" resizable="false" sortable="false" text="tRange" />
+                        <TableColumn fx:id="fRangeColumn" editable="false" prefWidth="95.0" resizable="false" sortable="false" text="Func Range" />
+                     </columns>
+                  </TableView>
+                  <Pane fx:id="telemetryPane" layoutX="562.0" layoutY="713.0" prefHeight="128.0" prefWidth="714.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="311.0" layoutY="1.0" prefHeight="25.0" prefWidth="91.0" text="Telemetry" textAlignment="CENTER">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <ScrollPane layoutY="26.0" prefHeight="102.0" prefWidth="712.0">
+                           <content>
+                              <ListView fx:id="telemetryList" prefHeight="99.0" prefWidth="710.0" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </Pane>
+               </children>
+            </Pane>
+         </content>
+      </Tab>
+      <Tab closable="false" text="Settings">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+         </content>
+      </Tab>
+   </tabs>
+</TabPane>
