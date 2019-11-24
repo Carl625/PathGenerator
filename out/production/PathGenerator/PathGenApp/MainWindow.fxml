@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -74,7 +75,6 @@
                         <TextField fx:id="funcScaleInput" layoutX="20.0" layoutY="84.0" onAction="#setFuncVar" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="3" />
                      </children>
                   </GridPane>
-                  <ImageView fx:id="fieldDisplay" fitHeight="700.0" fitWidth="700.0" layoutX="568.0" layoutY="14.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" pickOnBounds="true" preserveRatio="true" />
                   <TableView fx:id="funcInfoTable" layoutX="1.0" layoutY="278.0" prefHeight="565.0" prefWidth="557.0">
                      <columns>
                         <TableColumn fx:id="funcColumn" editable="false" prefWidth="164.0" resizable="false" sortable="false" text="Function" />
@@ -99,6 +99,7 @@
                         </ScrollPane>
                      </children>
                   </Pane>
+                  <Canvas fx:id="fieldDisplay" height="702.0" layoutX="567.0" layoutY="13.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onDragExited="#updateDisplay" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" width="703.0" />
                </children>
             </Pane>
          </content>

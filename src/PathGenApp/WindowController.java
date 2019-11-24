@@ -2,6 +2,7 @@ package PathGenApp;
 
 import Resources.*;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -10,7 +11,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
@@ -261,6 +261,8 @@ public class WindowController {
 
                 funcInfoTable.getItems().add(newRow); // add a new row
             }
+
+            updateDisplay();
         } else {
             // make a window pop up
             Alert error = new Alert(Alert.AlertType.ERROR);
@@ -345,7 +347,8 @@ public class WindowController {
         displayedFunctions.addAll(Arrays.asList(ParametricPath.parametrize(orderedFunctions, newAngles)));
     }
 
-    private void updateDisplay() {
+    @FXML
+    protected void updateDisplay() {
         // variables
         Function[] orderedFunctions = functions.toArray(new Function[0]);
         Vector2D[] newTranslations = translations.toArray(new Vector2D[0]);
@@ -360,6 +363,8 @@ public class WindowController {
         for (int p = 0; p < displayedFunctions.size(); p++) {
 
             // prepare the canvas
+//            System.out.println(displayedFunctions.get(p));
+//            System.out.println(Arrays.toString(newDefRanges[p]));
             double[] funcBoundingBox = displayedFunctions.get(p).findBounds(newDefRanges[p]);
             double xRange = funcBoundingBox[2] - funcBoundingBox[0];
             double yRange = funcBoundingBox[3] - funcBoundingBox[1];
@@ -424,7 +429,7 @@ public class WindowController {
                 int yPixel = (int) ((y * scale) + yOffset);
 
                 if ((xPixel >= 0 && xPixel < c.getWidth()) && (yPixel >= 0 && yPixel < c.getHeight()) ) {
-                    drawInterface.setColor(xPixel, yPixel, new Color(newColor.getRed(), newColor.getGreen(), newColor.getBlue(), newColor.getAlpha()));
+                    drawInterface.setColor(xPixel, yPixel, new Color(newColor.getRed(), newColor.getGreen(), newColor.getBlue(), (newColor.getAlpha() / 255.0)));
                 }
             }
         }

@@ -1708,13 +1708,13 @@ public class Function {
 //        System.out.println(two_X.output(-10));
 //        System.out.println(derivative1);
 
-        Function polynomial = new Function("((((6 * (x ^ 3)) + (4.9 * (x ^ 2))) + (3.5 * x)) + 21.34)", "x", new HashMap<String, Double>() );
-        Function derivative2 = Function.constSimplify(Function.derivative(polynomial));
-        Function polyDeriv = new Function("(((18 * (x ^ 2)) + (9.8 * x)) + 3.5)", "x", new HashMap<String, Double>());
-
-        System.out.println("Polynomial: " + polynomial);
-        System.out.println("Manual Polynomial derivative: " + polyDeriv);
-        System.out.println("Calculated Polynomial derivative: " + derivative2 + "\n");
+//        Function polynomial = new Function("((((6 * (x ^ 3)) + (4.9 * (x ^ 2))) + (3.5 * x)) + 21.34)", "x", new HashMap<String, Double>() );
+//        Function derivative2 = Function.constSimplify(Function.derivative(polynomial));
+//        Function polyDeriv = new Function("(((18 * (x ^ 2)) + (9.8 * x)) + 3.5)", "x", new HashMap<String, Double>());
+//
+//        System.out.println("Polynomial: " + polynomial);
+//        System.out.println("Manual Polynomial derivative: " + polyDeriv);
+//        System.out.println("Calculated Polynomial derivative: " + derivative2 + "\n");
 
 //        Function additionSimplified = Function.simplify(new Function("((6.0 + x) + 3.0)", "x", new HashMap<String, Double>()));
 //        System.out.println(additionSimplified);
@@ -1728,9 +1728,12 @@ public class Function {
 //        System.out.println(efficient.getOperationsTree());
 //        System.out.println(efficient);
 
-        String longest = "(((((3 * 5) * 45) + (x * (x ^ 3))) + (3 * (x / (3 * 9)))) * ((x / 4) ^ x))";
-        Function longestFunction = new Function(longest, "x", new HashMap<String, Double>());
-        System.out.println("Longest Function: " + longestFunction);
-        System.out.println("Derivative of longest: " + Function.constSimplify(longestFunction));
+//        String longest = "(((((3 * 5) * 45) + (x * (x ^ 3))) + (3 * (x / (3 * 9)))) * ((x / 4) ^ x))";
+//        Function longestFunction = new Function(longest, "x", new HashMap<String, Double>());
+//        System.out.println("Longest Function: " + longestFunction);
+//        System.out.println("Derivative of longest: " + Function.constSimplify(longestFunction));
+
+        Function line = new Function("(x + 2)", "x", new HashMap<String, Double>());
+        System.out.println(Arrays.toString(line.getZeroesNewton(new double[] {-20, 12})));
     }
 }

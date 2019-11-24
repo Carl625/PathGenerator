@@ -99,7 +99,7 @@
                         </ScrollPane>
                      </children>
                   </Pane>
-                  <Canvas fx:id="fieldDisplay" height="702.0" layoutX="567.0" layoutY="13.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" width="703.0" />
+                  <Canvas fx:id="fieldDisplay" height="702.0" layoutX="567.0" layoutY="13.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onDragExited="#updateDisplay" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" width="703.0" />
                </children>
             </Pane>
          </content>

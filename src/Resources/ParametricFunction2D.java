@@ -1,5 +1,6 @@
 package Resources;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ParametricFunction2D {
@@ -140,7 +141,7 @@ public class ParametricFunction2D {
         Node diff = Function.operate(y.getRoot(), x.getRoot(), "/"); // y/x
         Node theta = Function.composeTFUNC(diff, "t", Node.T_FUNC_TYPES.atan); // arctan(y/x)
 
-        return (new Pair<Function, Function>(Function.makeFunction(r, "t"), Function.makeFunction(theta, "t")));
+        return (new Pair<Function, Function>(Function.constSimplify(Function.makeFunction(r, "t")), Function.constSimplify(Function.makeFunction(theta, "t"))));
     }
 
     public static Pair<Function, Function> rectangularize(Function r, Function theta) {
@@ -151,7 +152,7 @@ public class ParametricFunction2D {
         Node x = Function.operate(r.getRoot(), cos, "*");
         Node y = Function.operate(r.getRoot(), sin, "*");
 
-        return (new Pair<Function, Function>(Function.makeFunction(x, "t"), Function.makeFunction(y, "t")));
+        return (new Pair<Function, Function>(Function.constSimplify(Function.makeFunction(x, "t")), Function.constSimplify(Function.makeFunction(y, "t"))));
     }
 
     //---------- Parametric Operations ----------//
@@ -242,10 +243,14 @@ public class ParametricFunction2D {
      */
     public static ParametricFunction2D rotate(ParametricFunction2D originalFunc, double radians) {
 
-        Function newScale = Function.makeFunctionCopy(originalFunc.getPolarComponents().get1());
-        Function newTheta = Function.makeFunction(Function.operate(Function.makeTreeCopy(originalFunc.getPolarComponents().get2().getRoot()), new Node(Node.paramType.Const, Double.toString(radians)), "+"), "t");
+        if ((radians % (Math.PI * 2)) != 0) {
+            Function newScale = Function.makeFunctionCopy(originalFunc.getPolarComponents().get1());
+            Function newTheta = Function.makeFunction(Function.operate(Function.makeTreeCopy(originalFunc.getPolarComponents().get2().getRoot()), new Node(Node.paramType.Const, Double.toString(radians)), "+"), "t");
 
-        return (new ParametricFunction2D(newScale, newTheta, true));
+            return (new ParametricFunction2D(newScale, newTheta, true));
+        }
+
+        return originalFunc;
     }
 
     public static ParametricFunction2D derivativeParametric(ParametricFunction2D originalFunc) {
@@ -428,7 +433,7 @@ public class ParametricFunction2D {
             return (new double[] {x.output(xMin), y.output(domain[0]), x.output(xMax), y.output(domain[1])});
         } else {
 
-            return null;
+            return (new double[] {x.output(domain[0]), y.output(domain[0]), x.output(domain[1]), y.output(domain[1])});
         }
     }
 
