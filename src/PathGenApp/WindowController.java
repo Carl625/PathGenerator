@@ -47,7 +47,9 @@ public class WindowController {
     public TextField pathRangeInput;
     public TextField fRangeInit;
     public TextField fRangeEnd;
-    public TextField funcScaleInput;
+    public TextField funcScaleXInput;
+    public TextField funcScaleYInput;
+    public TextField funcVarInput;
     public TextField transXInput;
     public TextField transYInput;
     public TextField rotationInput;
@@ -60,7 +62,9 @@ public class WindowController {
     public Label tRangeLabel;
     public Label fRangeInitLabel;
     public Label fRangeEndLabel;
-    public Label funcScaleLabel;
+    public Label funcScaleXLabel;
+    public Label funcScaleYLabel;
+    public Label funcVarLabel;
     public Label transXLabel;
     public Label transYLabel;
     public Label rotationLabel;
@@ -79,11 +83,13 @@ public class WindowController {
     private ArrayList<Function> functions;
     private ArrayList<Vector2D> translations;
     private ArrayList<Double> rotations;
-    private ArrayList<Double> scales;
+    private ArrayList<Pair<Double, Double>> scales;
     private ArrayList<Double> tRanges;
     private ArrayList<double[]> definedFunctionRanges;
 
     private int funcSelected = -1;
+
+    private java.awt.Color ignoreDrawColor = new java.awt.Color(230, 230, 230);
 
     public void initialize() {
 
@@ -108,7 +114,7 @@ public class WindowController {
         functions = new ArrayList<Function>();
         translations = new ArrayList<Vector2D>();
         rotations = new ArrayList<Double>();
-        scales = new ArrayList<Double>();
+        scales = new ArrayList<Pair<Double, Double>>();
         tRanges = new ArrayList<Double>();
         definedFunctionRanges = new ArrayList<double[]>();
 
@@ -123,7 +129,7 @@ public class WindowController {
         resetField();
 
         // debug
-        FuncTableEntry f = new FuncTableEntry("(x + 2)", 0.25, new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
+        FuncTableEntry f = new FuncTableEntry("(x + 2)", "x",  0.25, 0.5, new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
         loadRow(f);
     }
 
@@ -176,12 +182,21 @@ public class WindowController {
 
         boolean properlyFormatted = true;
 
+        String variable = funcVarInput.getText();
+
+        if (variable.contains(" ") || "+-*/^".contains(variable)) {
+
+            properlyFormatted = false;
+        }
+
         Function newFunc = null;
 
-        try {
-            newFunc = Function.constSimplify(new Function(funcStrInput.getText(), "x", new HashMap<String, Double>()));
-        } catch (Exception e) {
-            properlyFormatted = false;
+        if (properlyFormatted) {
+            try {
+                newFunc = Function.constSimplify(new Function(funcStrInput.getText(), variable, new HashMap<String, Double>()));
+            } catch (Exception e) {
+                properlyFormatted = false;
+            }
         }
 
         double xComp = 0.0;
@@ -194,10 +209,12 @@ public class WindowController {
             properlyFormatted = false;
         }
 
-        double scale = 0.0;
+        double scaleX = 0.0;
+        double scaleY = 0.0;
 
         try {
-            scale = Double.parseDouble(funcScaleInput.getText());
+            scaleX = Double.parseDouble(funcScaleXInput.getText());
+            scaleY = Double.parseDouble(funcScaleYInput.getText());
         } catch (Exception e) {
             properlyFormatted = false;
         }
@@ -231,7 +248,7 @@ public class WindowController {
 
         if (properlyFormatted) {
 
-            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), scale, translation, rotation, tRange, fRange);
+            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), variable, scaleX, scaleY, translation, rotation, tRange, fRange);
 
             if (funcSelected >= 0) {
 
@@ -239,7 +256,7 @@ public class WindowController {
                 functions.set(funcSelected, newFunc);
                 translations.set(funcSelected, translation);
                 rotations.set(funcSelected, rotation);
-                scales.set(funcSelected, scale);
+                scales.set(funcSelected, new Pair<Double, Double>(scaleX, scaleY));
                 tRanges.set(funcSelected, tRange);
                 definedFunctionRanges.set(funcSelected, fRange);
 
@@ -255,7 +272,7 @@ public class WindowController {
                 functions.add(newFunc);
                 translations.add(translation);
                 rotations.add(rotation);
-                scales.add(scale);
+                scales.add(new Pair<Double, Double>(scaleX, scaleY));
                 tRanges.add(tRange);
                 definedFunctionRanges.add(fRange);
 
@@ -322,7 +339,7 @@ public class WindowController {
     // image view
     public void fieldClicked(MouseEvent mouseEvent) {
 
-        
+
     }
 
     public void dragDetected(MouseEvent mouseEvent) {
@@ -368,17 +385,25 @@ public class WindowController {
             double[] funcBoundingBox = displayedFunctions.get(p).findBounds(newDefRanges[p]);
             double xRange = funcBoundingBox[2] - funcBoundingBox[0];
             double yRange = funcBoundingBox[3] - funcBoundingBox[1];
-            BufferedImage func = new BufferedImage((int) xRange, (int) yRange, BufferedImage.TYPE_INT_RGB);
-
-            // draw the function
-            drawFunction(displayedFunctions.get(p), new Vector2D(funcBoundingBox[0], funcBoundingBox[1]), newDefRanges[p], func);
+            System.out.println("Bounding Box: " + Arrays.toString(funcBoundingBox));
 
             // scale the canvas to the right size
-            double currentScale = (xRange * yRange) / (fieldDisplay.getBoundsInLocal().getWidth() * fieldDisplay.getBoundsInLocal().getHeight());
-            double calculatedScale = scales.get(p) / currentScale;
+            double currentScaleX = xRange / fieldDisplay.getBoundsInLocal().getWidth();
+            double calcScaleX = scales.get(p).get1() / currentScaleX;
+
+            double currentScaleY = yRange / fieldDisplay.getBoundsInLocal().getHeight();
+            double calcScaleY = scales.get(p).get2() / currentScaleY;
+
+            BufferedImage func = new BufferedImage((int) (xRange * calcScaleX), (int) (yRange * calcScaleY), BufferedImage.TYPE_INT_RGB);;
+            fill(func, ignoreDrawColor);
+
+            // draw the function
+
+            drawFunction(displayedFunctions.get(p), new Vector2D(funcBoundingBox[0], funcBoundingBox[1]), newDefRanges[p], func, calcScaleX, calcScaleY);
 
             // draw the frickin function my dudes
-            draw(fieldDisplay, func, (int) newTranslations[p].getComponent(0).doubleValue(), (int) newTranslations[p].getComponent(1).doubleValue(), calculatedScale);
+            draw(fieldDisplay, func, (int) newTranslations[p].getComponent(0).doubleValue(), (int) newTranslations[p].getComponent(1).doubleValue());
+            //fill(fieldDisplay, Color.GREEN);
         }
 
         // making sure it's good to export or not
@@ -390,18 +415,65 @@ public class WindowController {
             exportFunction.setDisable(true);
         }
 
+
     }
 
-    private void drawFunction(ParametricFunction2D p, Vector2D offset, double[] funcRange, BufferedImage canvas) {
+    private void drawFunction(ParametricFunction2D p, Vector2D offset, double[] funcRange, BufferedImage canvas, double scaleX, double scaleY) {
+
+        System.out.println("Image Height: " + canvas.getHeight());
+        System.out.println("Image Width: " + canvas.getWidth());
+        System.out.println("Offset: " + offset);
+
+        Vector2D previousPoint = null;
+        Graphics g = canvas.getGraphics();
+        g.setColor(java.awt.Color.green);
 
         for (double t = funcRange[0]; t <= funcRange[1]; t++) {
 
             Vector2D point = p.output(t);
-            point.add(offset);
+            point.sub(offset);
+            point.scale(0, scaleX);
+            point.scale(1, scaleY);
+            System.out.println("func Point: " + point);
 
             if ((point.getComponent(0) > 0 && point.getComponent(0) < canvas.getWidth()) && (point.getComponent(1) > 0 && point.getComponent(1) < canvas.getHeight())) {
 
                 canvas.setRGB((int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue(), java.awt.Color.green.getRGB());
+
+                if (previousPoint != null) {
+                    g.drawLine((int) previousPoint.getComponent(0).doubleValue(), (int) previousPoint.getComponent(1).doubleValue(), (int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue());
+                }
+
+                System.out.println(new java.awt.Color(canvas.getRGB((int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue())));
+            }
+
+            previousPoint = point;
+        }
+    }
+
+    public void fill(Canvas c, Color fillColor) {
+
+        PixelWriter p = c.getGraphicsContext2D().getPixelWriter();
+
+        for (int x = 0; x < c.getWidth(); x++) {
+            for (int y = 0; y < c.getHeight(); y++) {
+
+                p.setColor(x, y, fillColor);
+            }
+        }
+    }
+
+    public void fill(BufferedImage image, Color fillColor) {
+
+        fill(image, convert(fillColor));
+    }
+
+    public void fill(BufferedImage image, java.awt.Color fillColor) {
+
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+
+                image.setRGB(x, y, fillColor.getRGB());
             }
         }
     }
@@ -413,11 +485,6 @@ public class WindowController {
 
     public void draw(Canvas c, BufferedImage image, int xOffset, int yOffset) {
 
-        draw(c, image, xOffset, yOffset, 1.0);
-    }
-
-    public void draw(Canvas c, BufferedImage image, int xOffset, int yOffset, double scale) {
-
         PixelWriter drawInterface = c.getGraphicsContext2D().getPixelWriter();
 
         for (int x = 0; x < image.getWidth(); x++) {
@@ -425,14 +492,47 @@ public class WindowController {
 
                 int RGB = image.getRGB(x, y);
                 java.awt.Color newColor = new java.awt.Color(RGB);
-                int xPixel = (int) ((x * scale) + xOffset);
-                int yPixel = (int) ((y * scale) + yOffset);
+                int xPixel = x + xOffset;
+                int yPixel = y + yOffset;
 
-                if ((xPixel >= 0 && xPixel < c.getWidth()) && (yPixel >= 0 && yPixel < c.getHeight()) ) {
-                    drawInterface.setColor(xPixel, yPixel, new Color(newColor.getRed(), newColor.getGreen(), newColor.getBlue(), (newColor.getAlpha() / 255.0)));
+                if ((xPixel >= 0 && xPixel < c.getWidth()) && (yPixel >= 0 && yPixel < c.getHeight())) {
+//                    System.out.println("xPoint: " + xPixel + ", yPoint: " + yPixel);
+//                    System.out.println("Color: " + newColor);
+                    if (newColor.getRGB() != ignoreDrawColor.getRGB()) {
+
+                        drawInterface.setColor(xPixel, yPixel, convert(newColor));
+                    }
                 }
             }
         }
+    }
+
+    private BufferedImage scaleImage(BufferedImage image, double scale) {
+
+        return scaleImage(image, scale, scale);
+    }
+
+    private BufferedImage scaleImage(BufferedImage image, double scaleX, double scaleY) {
+
+        BufferedImage scaledImage = new BufferedImage((int) (image.getWidth() * scaleX), (int) (image.getHeight() * scaleY), BufferedImage.TYPE_INT_RGB);
+
+        for (int x = 0; x < scaledImage.getWidth(); x++) {
+            for (int y = 0; y < scaledImage.getHeight(); y++) {
+                scaledImage.setRGB(x, y, image.getRGB((int)(x / scaleX), (int)(y / scaleY)));
+            }
+        }
+
+        return scaledImage;
+    }
+
+    public Color convert(java.awt.Color newColor) {
+
+        return (Color.color((newColor.getRed() / 255.0), (newColor.getGreen() / 255.0), (newColor.getBlue() / 255.0), (newColor.getAlpha() / 255.0)));
+    }
+
+    public java.awt.Color convert(Color newColor) {
+
+        return (new java.awt.Color((int) (newColor.getRed() * 255), (int) (newColor.getBlue() * 255), (int) (newColor.getGreen() * 255), (int) (newColor.getOpacity() * 255)));
     }
 
     private void loadRow(int rowNum) {
@@ -448,7 +548,9 @@ public class WindowController {
         pathRangeInput.setText(f.getTRange());
         fRangeInit.setText(String.valueOf(f.getFuncRangeVar()[0]));
         fRangeEnd.setText(String.valueOf(f.getFuncRangeVar()[1]));
-        funcScaleInput.setText(f.getScale());
+        funcScaleXInput.setText(String.valueOf(f.getScaleVar().get1()));
+        funcScaleYInput.setText(String.valueOf(f.getScaleVar().get2()));
+        funcVarInput.setText(f.getVariable());
         transXInput.setText(String.valueOf(f.getTranslationVar().getComponents()[0]));
         transYInput.setText(String.valueOf(f.getTranslationVar().getComponents()[1]));
         rotationInput.setText(f.getRotation());
@@ -460,7 +562,9 @@ public class WindowController {
         pathRangeInput.clear();
         fRangeInit.clear();
         fRangeEnd.clear();
-        funcScaleInput.clear();
+        funcScaleXInput.clear();
+        funcScaleYInput.clear();
+        funcVarInput.clear();
         transXInput.clear();
         transYInput.clear();
         rotationInput.clear();

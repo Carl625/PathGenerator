@@ -354,8 +354,8 @@ public class ParametricFunction2D {
 
         double[] horizontalZeroes = dx_dt.getZeroesNewton(domain);
         double[] verticalZeroes = dy_dt.getZeroesNewton(domain);
-//        System.out.println("Horizontal Zeroes: " + Arrays.toString(horizontalZeroes));
-//        System.out.println("Vertical Zeroes: " + Arrays.toString(verticalZeroes));
+        System.out.println("Horizontal Zeroes: " + Arrays.toString(horizontalZeroes));
+        System.out.println("Vertical Zeroes: " + Arrays.toString(verticalZeroes));
 
         // find max and mins
         if (horizontalZeroes.length != 0 && verticalZeroes.length != 0) { // this fails with freshly parametrized functions
@@ -498,5 +498,6 @@ public class ParametricFunction2D {
 
         Function parabola = new Function("(x ^ 2)", "x", new HashMap<String, Double>());
         ParametricFunction2D parabolaParametric = new ParametricFunction2D(parabola, false);
+        System.out.println(Arrays.toString(parabolaParametric.findBounds(new double[] {0, 4})));
     }
 }

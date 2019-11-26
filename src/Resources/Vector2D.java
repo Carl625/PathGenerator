@@ -177,6 +177,14 @@ public class Vector2D {
         components[1] *= scalar;
     }
 
+    public void scale(int component, double scalar) {
+
+        if (component >= 0 && component < components.length) {
+
+            components[component] *= scalar;
+        }
+    }
+
     public double dot(Vector2D term_two) {
 
         double[] two_comp = term_two.getComponents();

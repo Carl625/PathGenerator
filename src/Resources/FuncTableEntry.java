@@ -5,25 +5,34 @@ import java.util.Arrays;
 public class FuncTableEntry {
 
     private String funcString;
+    private String variable;
     private Vector2D translation;
     private double[] fRange;
     private double rotation;
     private double tRange;
-    private double scale;
+    private double scaleX;
+    private double scaleY;
 
-    public FuncTableEntry(String newFuncString, double newScale, Vector2D newTranslation, double newRotation, double newTRange, double[] newFRange) {
+    public FuncTableEntry(String newFuncString, String newVar, double newScaleX, double newScaleY, Vector2D newTranslation, double newRotation, double newTRange, double[] newFRange) {
 
         funcString = newFuncString;
+        variable = newVar;
         translation = newTranslation;
         rotation = newRotation;
         tRange = newTRange;
         fRange = newFRange;
-        scale = newScale;
+        scaleX = newScaleX;
+        scaleY = newScaleY;
     }
 
     public String getFunction() {
 
         return funcString;
+    }
+
+    public String getVariable() {
+
+        return variable;
     }
 
     public String getTranslation() {
@@ -68,12 +77,12 @@ public class FuncTableEntry {
 
     public String getScale() {
 
-        return String.valueOf(scale);
+        return "[" + scaleX + ":" + scaleY + "]";
     }
 
-    public double getScaleVar() {
+    public Pair<Double, Double> getScaleVar() {
 
-        return scale;
+        return new Pair<Double, Double>(scaleX, scaleY);
     }
 
     public boolean equals(FuncTableEntry second) {
