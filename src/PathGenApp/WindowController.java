@@ -357,10 +357,10 @@ public class WindowController {
     }
 
     private void regenFunctions() {
-
         Function[] orderedFunctions = functions.toArray(new Function[0]);
         double[] newAngles = rotations.stream().mapToDouble(d -> d).toArray();
 
+        displayedFunctions.clear();
         displayedFunctions.addAll(Arrays.asList(ParametricPath.parametrize(orderedFunctions, newAngles)));
     }
 
@@ -414,8 +414,6 @@ public class WindowController {
         } else {
             exportFunction.setDisable(true);
         }
-
-
     }
 
     private void drawFunction(ParametricFunction2D p, Vector2D offset, double[] funcRange, BufferedImage canvas, double scaleX, double scaleY) {
@@ -428,7 +426,7 @@ public class WindowController {
         Graphics g = canvas.getGraphics();
         g.setColor(java.awt.Color.green);
 
-        for (double t = funcRange[0]; t <= funcRange[1]; t++) {
+        for (double t = funcRange[0]; t <= funcRange[1]; t += 0.1) {
 
             Vector2D point = p.output(t);
             point.sub(offset);
@@ -553,7 +551,7 @@ public class WindowController {
         funcVarInput.setText(f.getVariable());
         transXInput.setText(String.valueOf(f.getTranslationVar().getComponents()[0]));
         transYInput.setText(String.valueOf(f.getTranslationVar().getComponents()[1]));
-        rotationInput.setText(f.getRotation());
+        rotationInput.setText(String.valueOf(Math.toDegrees(f.getRotationVar())));
     }
 
     private void clearInputs() {
