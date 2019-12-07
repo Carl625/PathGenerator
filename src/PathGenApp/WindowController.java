@@ -87,7 +87,8 @@ public class WindowController {
     private ArrayList<Double> tRanges;
     private ArrayList<double[]> definedFunctionRanges;
 
-    private int funcSelected = -1;
+    private int funcSelectedTable = -1;
+    private int funcSelectedField = -1;
 
     private java.awt.Color ignoreDrawColor = new java.awt.Color(230, 230, 230);
 
@@ -138,13 +139,24 @@ public class WindowController {
     // pane
     public void mainPaneClicked(MouseEvent mouseEvent) {
 
-        if (funcSelected != -1) {
+        Vector2D clickedPoint = new Vector2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 
-            funcSelected = -1;
+        if (funcSelectedTable != -1) {
+
+            funcSelectedTable = -1;
             clearInputs();
             funcInfoTable.getSelectionModel().clearSelection();
             deleteFunction.setDisable(true);
             genFunction.setText("Generate");
+        }
+
+        Vector2D fieldDisplayOffset = new Vector2D(fieldDisplay.getLayoutX(), fieldDisplay.getLayoutY());
+        clickedPoint.sub(fieldDisplayOffset);
+
+        if (!fieldDisplay.contains(Vector2D.convert(clickedPoint))) {
+
+            funcSelectedField = -1;
+            System.out.println("Reset selected Function!");
         }
     }
 
@@ -153,14 +165,14 @@ public class WindowController {
 
 
         // change the internal data
-        functions.remove(funcSelected);
-        translations.remove(funcSelected);
-        rotations.remove(funcSelected);
-        scales.remove(funcSelected);
-        tRanges.remove(funcSelected);
-        definedFunctionRanges.remove(funcSelected);
+        functions.remove(funcSelectedTable);
+        translations.remove(funcSelectedTable);
+        rotations.remove(funcSelectedTable);
+        scales.remove(funcSelectedTable);
+        tRanges.remove(funcSelectedTable);
+        definedFunctionRanges.remove(funcSelectedTable);
 
-        funcInfoTable.getItems().remove(funcSelected); // overwrite the selected row
+        funcInfoTable.getItems().remove(funcSelectedTable); // overwrite the selected row
 
         clearInputs();
         funcInfoTable.getSelectionModel().clearSelection();
@@ -250,17 +262,17 @@ public class WindowController {
 
             FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), variable, scaleX, scaleY, translation, rotation, tRange, fRange);
 
-            if (funcSelected >= 0) {
+            if (funcSelectedTable >= 0) {
 
                 // change the internal data
-                functions.set(funcSelected, newFunc);
-                translations.set(funcSelected, translation);
-                rotations.set(funcSelected, rotation);
-                scales.set(funcSelected, new Pair<Double, Double>(scaleX, scaleY));
-                tRanges.set(funcSelected, tRange);
-                definedFunctionRanges.set(funcSelected, fRange);
+                functions.set(funcSelectedTable, newFunc);
+                translations.set(funcSelectedTable, translation);
+                rotations.set(funcSelectedTable, rotation);
+                scales.set(funcSelectedTable, new Pair<Double, Double>(scaleX, scaleY));
+                tRanges.set(funcSelectedTable, tRange);
+                definedFunctionRanges.set(funcSelectedTable, fRange);
 
-                funcInfoTable.getItems().set(funcSelected, newRow); // overwrite the selected row
+                funcInfoTable.getItems().set(funcSelectedTable, newRow); // overwrite the selected row
 
                 // clear the modify state
                 clearInputs();
@@ -326,10 +338,10 @@ public class WindowController {
     // table
     public void rowSelected() {
 
-        funcSelected = funcInfoTable.getSelectionModel().getSelectedIndex();
-        System.out.println("row Selected: " + funcSelected);
+        funcSelectedTable = funcInfoTable.getSelectionModel().getSelectedIndex();
+        System.out.println("row Selected: " + funcSelectedTable);
         // set funcSelected equal to something
-        if (funcSelected != -1) {
+        if (funcSelectedTable != -1) {
             loadRow((FuncTableEntry) funcInfoTable.getSelectionModel().getSelectedItem()); // loads the row to be modified
             deleteFunction.setDisable(false);
             genFunction.setText("Modify");
@@ -338,9 +350,62 @@ public class WindowController {
 
     // image view
     public void fieldClicked(MouseEvent mouseEvent) {
+        Vector2D mouseClick = new Vector2D(mouseEvent.getSceneX() - fieldDisplay.getLayoutX(), mouseEvent.getSceneY() - fieldDisplay.getLayoutY());
 
+        if (funcSelectedField == -1) { // picking a function up
 
+            funcSelectedField = findSelectedFunc(mouseClick);
+        } else { // placing a function down
+
+            double[] bounds = getDisplayBoundingBox(funcSelectedField);
+            Vector2D centerDisp = new Vector2D((bounds[0] - bounds[2]) / 2.0, (bounds[1] - bounds[3]) / 2.0);
+            Vector2D boundOffset = Vector2D.add(mouseClick, centerDisp);
+            System.out.println("Function: " + funcSelectedField + " New Translation: " + boundOffset);
+
+            translations.set(funcSelectedField, boundOffset);
+            updateDisplay();
+        }
     }
+
+    private int findSelectedFunc(Vector2D clickedPoint) {
+
+        if (displayedFunctions.size() > 0) {
+
+            double min = Double.MAX_VALUE;
+            int maxIndex = 0;
+            boolean foundBox = false;
+
+            for (int f = 0; f < displayedFunctions.size(); f++) {
+
+                ParametricFunction2D p = displayedFunctions.get(f);
+                double[] boundingBox = getDisplayBoundingBox(f);
+                System.out.println(Arrays.toString(boundingBox));
+
+                if ((clickedPoint.getComponent(0) > boundingBox[0] && clickedPoint.getComponent(0) < boundingBox[2]) && (clickedPoint.getComponent(1) > boundingBox[1] && clickedPoint.getComponent(1) < boundingBox[3])) {
+                    System.out.println("found function box!");
+                    Vector2D distance = new Vector2D((boundingBox[2] - boundingBox[0]) / 2.0, (boundingBox[3] - boundingBox[1]) / 2.0);
+                    distance.sub(clickedPoint);
+
+                    if (distance.getMag() < min) {
+
+                        min = distance.getMag();
+                        maxIndex = f;
+                    }
+
+                    foundBox = true;
+                }
+            }
+
+            if (foundBox) {
+                return maxIndex;
+            } else {
+                return -1;
+            }
+        }
+
+        return -1;
+    }
+
 
     public void dragDetected(MouseEvent mouseEvent) {
 
@@ -351,6 +416,40 @@ public class WindowController {
     }
 
     /* ---------- Data Methods ----------*/
+
+    private double[] getDisplayBoundingBox(int func) {
+
+        ParametricFunction2D p = displayedFunctions.get(func);
+        double[] boundingBox = p.findBounds(definedFunctionRanges.get(func));
+        Pair<Double, Double> scale = scales.get(func);
+        Vector2D trans = translations.get(func);
+
+        double xRange = boundingBox[2] - boundingBox[0];
+        double yRange = boundingBox[3] - boundingBox[1];
+
+        double currentScaleX = xRange / fieldDisplay.getBoundsInLocal().getWidth();
+        double calcScaleX = scale.get1() / currentScaleX;
+
+        double currentScaleY = yRange / fieldDisplay.getBoundsInLocal().getHeight();
+        double calcScaleY = scale.get2() / currentScaleY;
+
+        System.out.println(scale);
+
+        boundingBox[2] -= boundingBox[0];
+        boundingBox[0] -= boundingBox[0];
+        boundingBox[3] -= boundingBox[1];
+        boundingBox[1] -= boundingBox[1];
+
+        boundingBox[0] += trans.getComponent(0);
+        boundingBox[2] *= calcScaleX;
+        boundingBox[2] += trans.getComponent(0);
+
+        boundingBox[1] += trans.getComponent(1);
+        boundingBox[3] *= calcScaleY;
+        boundingBox[3] += trans.getComponent(1);
+
+        return boundingBox;
+    }
 
     private void resetField() {
         graphics.drawImage(field, 0, 0);
@@ -385,7 +484,7 @@ public class WindowController {
             double[] funcBoundingBox = displayedFunctions.get(p).findBounds(newDefRanges[p]);
             double xRange = funcBoundingBox[2] - funcBoundingBox[0];
             double yRange = funcBoundingBox[3] - funcBoundingBox[1];
-            System.out.println("Bounding Box: " + Arrays.toString(funcBoundingBox));
+            //System.out.println("Bounding Box: " + Arrays.toString(funcBoundingBox));
 
             // scale the canvas to the right size
             double currentScaleX = xRange / fieldDisplay.getBoundsInLocal().getWidth();
@@ -418,9 +517,9 @@ public class WindowController {
 
     private void drawFunction(ParametricFunction2D p, Vector2D offset, double[] funcRange, BufferedImage canvas, double scaleX, double scaleY) {
 
-        System.out.println("Image Height: " + canvas.getHeight());
-        System.out.println("Image Width: " + canvas.getWidth());
-        System.out.println("Offset: " + offset);
+//        System.out.println("Image Height: " + canvas.getHeight());
+//        System.out.println("Image Width: " + canvas.getWidth());
+//        System.out.println("Offset: " + offset);
 
         Vector2D previousPoint = null;
         Graphics g = canvas.getGraphics();
@@ -432,7 +531,7 @@ public class WindowController {
             point.sub(offset);
             point.scale(0, scaleX);
             point.scale(1, scaleY);
-            System.out.println("func Point: " + point);
+            //System.out.println("func Point: " + point);
 
             if ((point.getComponent(0) > 0 && point.getComponent(0) < canvas.getWidth()) && (point.getComponent(1) > 0 && point.getComponent(1) < canvas.getHeight())) {
 
@@ -442,7 +541,7 @@ public class WindowController {
                     g.drawLine((int) previousPoint.getComponent(0).doubleValue(), (int) previousPoint.getComponent(1).doubleValue(), (int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue());
                 }
 
-                System.out.println(new java.awt.Color(canvas.getRGB((int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue())));
+                //System.out.println(new java.awt.Color(canvas.getRGB((int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue())));
             }
 
             previousPoint = point;
@@ -533,6 +632,22 @@ public class WindowController {
         return (new java.awt.Color((int) (newColor.getRed() * 255), (int) (newColor.getBlue() * 255), (int) (newColor.getGreen() * 255), (int) (newColor.getOpacity() * 255)));
     }
 
+    public void add(double[] array, double offset) {
+
+        for (int i = 0; i < array.length; i++) {
+
+            array[i] += offset;
+        }
+    }
+
+    public void scale(double[] array, double scale) {
+
+        for (int i = 0; i < array.length; i++) {
+
+            array[i] *= scale;
+        }
+    }
+
     private void loadRow(int rowNum) {
 
         FuncTableEntry f = (FuncTableEntry) funcInfoTable.getItems().get(rowNum);
@@ -566,49 +681,5 @@ public class WindowController {
         transXInput.clear();
         transYInput.clear();
         rotationInput.clear();
-    }
-
-
-    // drawing algorithms
-    public Image draw(ParametricFunction2D newFunc, double deltaT, double[] fRange , boolean polarity) {
-
-        Pair<Function, Function> process;
-        double[] funcBounds = newFunc.findBounds(fRange);
-        Vector2D offset = new Vector2D(funcBounds[0], funcBounds[1]);
-
-        ArrayList<Pair<Double, Double>> points = new ArrayList<Pair<Double, Double>>();
-
-
-//        Coordinate lastCoord = null; // TODO: IMPLEMENT GOOD THING
-//
-//        int pointNum = 0;
-//        Coordinate point = getPoint(pointNum);
-//
-//        while (point != null) {
-//
-//            double xPixel = pixelStart[0] + (point.getX() - displayRange.get1().getX()) * (graphWidth / xRange);
-//            double yPixel = pixelStart[1] + (displayRange.get1().getY() + yRange - point.getY()) * (graphHeight / yRange);
-//
-//            if (polarity) {
-//
-//                xPixel = pixelStart[0] + ((point.getX() * Math.cos(point.getY())) - displayRange.get1().getX()) * (graphWidth / xRange);
-//                yPixel = pixelStart[1] + (displayRange.get1().getY() + yRange - (point.getX() * Math.sin(point.getY()))) * (graphHeight / yRange);
-//            }
-//
-//            if (lastCoord != null) {
-//                if (point.drawTo() && lastCoord.drawFrom()) {
-//                    g.drawLine((int) lastCoord.getX(), (int) lastCoord.getY(), (int) xPixel, (int) yPixel);
-//                }
-//            }
-//
-//
-//            lastCoord = new Coordinate(xPixel, yPixel, point.drawFrom(), point.drawTo());
-//            pointNum++;
-//            point = getPoint(pointNum);
-//        }
-
-        Image function = null;
-
-        return function;
     }
 }

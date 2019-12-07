@@ -535,6 +535,9 @@ public class Function {
                     case "abs":
                         output = Math.abs(child1Val);
                         break;
+                    case "delta":
+                        output = deltaFunc(child1Val);
+                        break;
                 }
                 break;
         }
@@ -1048,12 +1051,16 @@ public class Function {
                         functionDerivative = Function.operate(product, new Node(Node.paramType.Const, "-1"), "^");
                         break;
                     case "sgn":
-                        functionDerivative = new Node(Node.paramType.Const, "0");
+                        Node delta = Function.composeTFUNC(new Node(Node.paramType.Variable, variable), variable, Node.T_FUNC_TYPES.delta);
+                        functionDerivative = Function.operate(new Node(Node.paramType.Const, "2"), delta, "*");
                         break;
                     case "abs":
                         square = Function.operate(root.getChild1(), new Node(Node.paramType.Const, "2"), "^");
                         sqRoot = Function.operate(square, new Node(Node.paramType.Const, "0.5"), "^");
                         functionDerivative = Function.derivative(sqRoot, variable);
+                        break;
+                    case "delta":
+                        functionDerivative = new Node(Node.paramType.Const, "0");
                         break;
                 }
 
@@ -1062,6 +1069,17 @@ public class Function {
         }
 
         return dRoot;
+    }
+
+    public static double deltaFunc(double input) {
+
+        if (input == 0) {
+
+            return Double.POSITIVE_INFINITY;
+        } else {
+
+            return 0;
+        }
     }
 
     public static Function constSimplify(Function originalFunc) {
@@ -1566,12 +1584,10 @@ public class Function {
     public static String toString(Node root) {
 
         String function = "";
+        //System.out.println("Immediate Tree: " + root);
 
         switch(root.getType()) {
             case Const:
-
-                function = root.getVal();
-                break;
             case Variable:
 
                 function = root.getVal();
@@ -1582,7 +1598,16 @@ public class Function {
                 break;
             case T_FUNC:
 
-                function = "(" + root.getVal() + "(" + toString(root.getChild1()) + "))";
+                String inner = toString(root.getChild1());
+
+                switch (root.getChild1().getType()) {
+                    case T_FUNC:
+                    case Operation:
+                        inner = inner.substring(1, inner.length() - 1);
+                        break;
+                }
+
+                function = "(" + root.getVal() + "(" + inner + "))";
                 break;
         }
 
@@ -1733,7 +1758,8 @@ public class Function {
 //        System.out.println("Longest Function: " + longestFunction);
 //        System.out.println("Derivative of longest: " + Function.constSimplify(longestFunction));
 
-        Function line = new Function("(x + 2)", "x", new HashMap<String, Double>());
-        System.out.println(Arrays.toString(line.getZeroesNewton(new double[] {-20, 12})));
+        Function line = new Function("(x + (sin(2 * x)))", "x", new HashMap<String, Double>());
+        //System.out.println(Arrays.toString(line.getZeroesNewton(new double[] {-20, 12})));
+        System.out.println(line);
     }
 }
