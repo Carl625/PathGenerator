@@ -130,7 +130,7 @@ public class WindowController {
         resetField();
 
         // debug
-        FuncTableEntry f = new FuncTableEntry("(x + 2)", "x",  0.25, 0.5, new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
+        FuncTableEntry f = new FuncTableEntry("(x ^ 2)", "x",  0.25, 0.5, new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
         loadRow(f);
     }
 
@@ -171,6 +171,7 @@ public class WindowController {
         scales.remove(funcSelectedTable);
         tRanges.remove(funcSelectedTable);
         definedFunctionRanges.remove(funcSelectedTable);
+        displayedFunctions.remove(funcSelectedTable);
 
         funcInfoTable.getItems().remove(funcSelectedTable); // overwrite the selected row
 
@@ -183,6 +184,8 @@ public class WindowController {
             deleteFunction.setDisable(true);
             genFunction.setText("Generate");
         }
+
+        updateDisplay();
     }
 
     public void exportFunc(ActionEvent actionEvent) {
