@@ -1,6 +1,9 @@
 package PathGenApp;
 
 import Resources.*;
+import com.sun.javafx.scene.control.skin.TableHeaderRow;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -93,13 +96,27 @@ public class WindowController {
         //table
 
         funcColumn.setCellValueFactory(new PropertyValueFactory<>("Function"));
-        //transColumn.setCellValueFactory(new PropertyValueFactory<>("Translation"));
+        transColumn.setCellValueFactory(new PropertyValueFactory<>("Translation"));
         rotColumn.setCellValueFactory(new PropertyValueFactory<>("Rotation"));
         scaleColumn.setCellValueFactory(new PropertyValueFactory<>("Scale"));
         tRangeColumn.setCellValueFactory(new PropertyValueFactory<>("TRange"));
         fRangeColumn.setCellValueFactory(new PropertyValueFactory<>("FuncRange"));
 
         funcInfoTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> rowSelected());
+
+        funcInfoTable.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
+                // Get the table header
+                TableHeaderRow header = (TableHeaderRow) funcInfoTable.lookup("TableHeaderRow");
+                header.reorderingProperty().addListener(new ChangeListener<Boolean>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                        header.setReordering(false);
+                    }
+                });
+            }
+        });
 
         // buttons
         deleteFunction.setDisable(true);
@@ -126,7 +143,7 @@ public class WindowController {
         resetField();
 
         // debug
-        FuncTableEntry f = new FuncTableEntry("(x ^ 2)", "x",  0.5, 0.5, Math.toRadians(0), 3, new double[] {-10, 10});
+        FuncTableEntry f = new FuncTableEntry("(x ^ 2)", "x",  0.2, 0.2, new Vector2D(0, 0), Math.toRadians(0), 3, new double[] {-10, 10});
         loadRow(f);
     }
 
@@ -259,18 +276,65 @@ public class WindowController {
 
         if (properlyFormatted) {
 
-            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), variable, scaleX, scaleY, rotation, tRange, fRange);
-
             Vector2D translation = new Vector2D(0, 0);
 
             if (functions.size() > 0) {
 
-                translation = translations.get(translations.size() - 1);
-                ParametricFunction2D p = new ParametricFunction2D(newFunc, false);
+                translation = new Vector2D(translations.get(translations.size() - 1));
+                ParametricFunction2D p = new ParametricFunction2D(functions.get(functions.size() - 1), false);
+                double[] funcBoundingBox = p.findBounds(definedFunctionRanges.get(definedFunctionRanges.size() - 1));
+                Pair<Double, Double> scale = scales.get(scales.size() - 1);
+                Double angle = rotations.get(rotations.size() - 1);
+
+                if (funcSelectedTable >= 0) {
+                    p = new ParametricFunction2D(functions.get(funcSelectedTable - 1), false);
+                    funcBoundingBox = p.findBounds(definedFunctionRanges.get(funcSelectedTable - 1));
+                    scale = scales.get(funcSelectedTable - 1);
+                    angle = rotations.get(funcSelectedTable - 1);
+                }
+
+                p = ParametricFunction2D.rotate(p, angle);
+
+                double xRange = funcBoundingBox[2] - funcBoundingBox[0];
+                double yRange = funcBoundingBox[3] - funcBoundingBox[1];
+
                 Vector2D endPoint = p.output(fRange[1]);
+                endPoint.sub(new Vector2D(funcBoundingBox[0], funcBoundingBox[1]));
+                endPoint.flipDimension(1);
+                endPoint.scale(0, (scale.get1() / xRange) * fieldDisplay.getBoundsInLocal().getWidth());
+                endPoint.scale(1, (scale.get2() / yRange) * fieldDisplay.getBoundsInLocal().getHeight());
 
                 translation.add(endPoint);
+
+                p = new ParametricFunction2D(newFunc, false);
+                funcBoundingBox = p.findBounds(fRange);
+
+                xRange = funcBoundingBox[2] - funcBoundingBox[0];
+                yRange = funcBoundingBox[3] - funcBoundingBox[1];
+
+                Vector2D startPoint = p.output(fRange[0]);
+                startPoint.sub(new Vector2D(funcBoundingBox[0], funcBoundingBox[1]));
+                startPoint.flipDimension(1);
+                startPoint.scale(0, (scaleX / xRange) * fieldDisplay.getBoundsInLocal().getWidth());
+                startPoint.scale(1, (scaleY / yRange) * fieldDisplay.getBoundsInLocal().getHeight());
+
+                translation.sub(startPoint);
+
+                if (funcSelectedTable >= 0) {
+
+                    Vector2D translationChange = new Vector2D(translation);
+                    translationChange.sub(translations.get(funcSelectedTable));
+
+                    for (int t = 0; t < translations.size(); t++) {
+                        if (t != funcSelectedTable) {
+
+                            translations.get(t).add(translationChange);
+                        }
+                    }
+                }
             }
+
+            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), variable, scaleX, scaleY, translation, rotation, tRange, fRange);
 
             if (funcSelectedTable >= 0) {
 
@@ -281,12 +345,6 @@ public class WindowController {
                 scales.set(funcSelectedTable, new Pair<Double, Double>(scaleX, scaleY));
                 tRanges.set(funcSelectedTable, tRange);
                 definedFunctionRanges.set(funcSelectedTable, fRange);
-
-
-
-                //TODO: calculate the new Translation
-
-                translations.set(funcSelectedTable, translation);
 
                 funcInfoTable.getItems().set(funcSelectedTable, newRow); // overwrite the selected row
 
@@ -378,6 +436,16 @@ public class WindowController {
             Vector2D boundOffset = Vector2D.add(mouseClick, centerDisp);
             System.out.println("Function: " + funcSelectedField + " New Translation: " + boundOffset);
 
+            Vector2D translationChange = new Vector2D(boundOffset);
+            translationChange.sub(translations.get(funcSelectedField));
+
+            for (int t = 0; t < translations.size(); t++) {
+                if (t != funcSelectedField) {
+
+                    translations.get(t).add(translationChange);
+                }
+            }
+
             translations.set(funcSelectedField, boundOffset);
             updateDisplay();
 
@@ -399,10 +467,10 @@ public class WindowController {
 
                 ParametricFunction2D p = displayedFunctions.get(f);
                 double[] boundingBox = getDisplayBoundingBox(f);
-                System.out.println(Arrays.toString(boundingBox));
+                //.println(Arrays.toString(boundingBox));
 
                 if ((clickedPoint.getComponent(0) > boundingBox[0] && clickedPoint.getComponent(0) < boundingBox[2]) && (clickedPoint.getComponent(1) > boundingBox[1] && clickedPoint.getComponent(1) < boundingBox[3])) {
-                    System.out.println("found function box!");
+                    //System.out.println("found function box!");
                     Vector2D distance = new Vector2D((boundingBox[2] - boundingBox[0]) / 2.0, (boundingBox[3] - boundingBox[1]) / 2.0);
                     distance.sub(clickedPoint);
 
@@ -459,44 +527,32 @@ public class WindowController {
 
     private double[] getDisplayBoundingBox(int func) {
 
-        return getDisplayBoundingBox(displayedFunctions.get(func), definedFunctionRanges.get(func), scales.get(func), translations.get(func));
+        return getDisplayBoundingBox(scales.get(func), translations.get(func));
     }
 
-    private double[] getDisplayBoundingBox(ParametricFunction2D p, double[] definedFunctionRange, Pair<Double, Double> scale, Vector2D trans) {
+    private double[] getDisplayBoundingBox(Pair<Double, Double> scale, Vector2D trans) {
 
-        double[] boundingBox = getLocalBoundingBox(p, definedFunctionRange, scale);
+        double[] boundingBox = getLocalBoundingBox(scale);
 
         boundingBox[0] += trans.getComponent(0);
         boundingBox[2] += trans.getComponent(0);
-
         boundingBox[1] += trans.getComponent(1);
         boundingBox[3] += trans.getComponent(1);
 
         return boundingBox;
     }
 
-    private double[] getLocalBoundingBox(ParametricFunction2D p, double[] definedFunctionRange, Pair<Double, Double> scale) {
+    private double[] getLocalBoundingBox(Pair<Double, Double> scale) {
 
-        double[] boundingBox = p.findBounds(definedFunctionRange);
+        double[] boundingBox = new double[4];
 
-        double xRange = boundingBox[2] - boundingBox[0];
-        double yRange = boundingBox[3] - boundingBox[1];
+        double calcScaleX = scale.get1() * fieldDisplay.getBoundsInLocal().getWidth();
+        double calcScaleY = scale.get2() * fieldDisplay.getBoundsInLocal().getHeight();
 
-        double currentScaleX = xRange / fieldDisplay.getBoundsInLocal().getWidth();
-        double calcScaleX = scale.get1() / currentScaleX;
-
-        double currentScaleY = yRange / fieldDisplay.getBoundsInLocal().getHeight();
-        double calcScaleY = scale.get2() / currentScaleY;
-
-        System.out.println(scale);
-
-        boundingBox[2] -= boundingBox[0];
-        boundingBox[0] -= boundingBox[0];
-        boundingBox[3] -= boundingBox[1];
-        boundingBox[1] -= boundingBox[1];
-
-        boundingBox[2] *= calcScaleX;
-        boundingBox[3] *= calcScaleY;
+        boundingBox[0] = 0;
+        boundingBox[1] = 0;
+        boundingBox[2] = calcScaleX;
+        boundingBox[3] = calcScaleY;
 
         return boundingBox;
     }
@@ -538,17 +594,14 @@ public class WindowController {
             //System.out.println("Bounding Box: " + Arrays.toString(funcBoundingBox));
 
             // scale the canvas to the right size
-            double currentScaleX = xRange / fieldDisplay.getBoundsInLocal().getWidth();
-            double calcScaleX = scales.get(p).get1() / currentScaleX;
+            double calcScaleX = scales.get(p).get1() * fieldDisplay.getBoundsInLocal().getWidth();
+            double calcScaleY = scales.get(p).get2() * fieldDisplay.getBoundsInLocal().getHeight();
 
-            double currentScaleY = yRange / fieldDisplay.getBoundsInLocal().getHeight();
-            double calcScaleY = scales.get(p).get2() / currentScaleY;
-
-            BufferedImage func = new BufferedImage((int) (xRange * calcScaleX), (int) (yRange * calcScaleY), BufferedImage.TYPE_INT_RGB);;
+            BufferedImage func = new BufferedImage((int) (calcScaleX), (int) (calcScaleY), BufferedImage.TYPE_INT_RGB);;
             fill(func, ignoreDrawColor);
 
             // draw the function
-            drawFunction(displayedFunctions.get(p), new Vector2D(funcBoundingBox[0], funcBoundingBox[1]), newDefRanges[p], func, calcScaleX, calcScaleY);
+            drawFunction(displayedFunctions.get(p), new Vector2D(funcBoundingBox[0], funcBoundingBox[1]), newDefRanges[p], func, calcScaleX / xRange, calcScaleY / yRange);
             func = flipImage(func, false, true);
 
             // draw the frickin function my dudes
