@@ -382,12 +382,14 @@ public class ParametricFunction2D {
             double horizontalMin = Arrays.stream(horizontalZeroes).filter(d -> (d2x_dt2.output(d) > 0)).min().orElse(NaN);
             //System.out.println("Horizontal Zero Max: " + horizontalMax + " Horizontal Zero Min: " + horizontalMin);
 
-            if (!Double.isNaN(horizontalMax) && !Double.isNaN(horizontalMin)) {
+            if (!Double.isNaN(horizontalMax)) {
                 if (horzMax < x.output(horizontalMax)) {
 
                     horzMax = x.output(horizontalMax);
                 }
+            }
 
+            if (Double.isNaN(horizontalMin)) {
                 if (horzMin > x.output(horizontalMin)) {
 
                     horzMin = x.output(horizontalMin);
@@ -398,17 +400,19 @@ public class ParametricFunction2D {
         }
 
         if (verticalZeroes.length > 0) {
-            //System.out.println(Arrays.toString(verticalZeroes));
+            System.out.println(Arrays.toString(verticalZeroes));
             double verticalMax = Arrays.stream(verticalZeroes).filter(d -> (d2y_dt2.output(d) < 0)).max().orElse(NaN);
             double verticalMin = Arrays.stream(verticalZeroes).filter(d -> (d2y_dt2.output(d) > 0)).min().orElse(NaN);
-            //System.out.println("Vertical Zero Max: " + verticalMax + " Vertical Zero Min: " + verticalMin);
+            System.out.println("Vertical Zero Max: " + verticalMax + " Vertical Zero Min: " + verticalMin);
 
-            if (!Double.isNaN(verticalMax) && !Double.isNaN(verticalMin)) {
+            if (!Double.isNaN(verticalMax)) {
                 if (vertMax < y.output(verticalMax)) {
 
                     vertMax = y.output(verticalMax);
                 }
+            }
 
+            if (!Double.isNaN(verticalMin)) {
                 if (vertMin > y.output(verticalMin)) {
 
                     vertMin = y.output(verticalMin);

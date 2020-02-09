@@ -1,8 +1,6 @@
 package Resources;
 
 import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class Function {
 
@@ -731,7 +729,12 @@ public class Function {
 
     public static Function makeFunction(Node tree, String variable) {
 
-        return (new Function(tree, variable, new HashMap<String, Double>(), true));
+        return makeFunction(tree, variable, true);
+    }
+
+    public static Function makeFunction(Node tree, String variable, boolean absRoot) {
+
+        return (new Function(tree, variable, new HashMap<String, Double>(), absRoot));
     }
 
     public static Function makeFunctionCopy(Function originalFunction) {
@@ -955,10 +958,11 @@ public class Function {
                         Node expDiff = operate(root.getChild2(), new Node(Node.paramType.Const, "1"), "-"); // g(x) - 1
                         Node term1Exp1 = operate(root.getChild1(), expDiff, "^"); // f(x) ^ (g(x) - 1)
                         Node term1Product1 = operate(root.getChild2(), term1Exp1, "*"); // (f(x)^(g(x) - 1)) * g(x)
-                        Node term1 = operate(term1Product1, subDerivative1, "*"); // ((f(x)^g(x)) * g(x)) / f(x)) * f'(x)
+                        Node term1 = operate(term1Product1, subDerivative1, "*"); // ((f(x)^w(g(x) - 1)) * g(x)) * f'(x)
 
                         //term 2
-                        Node term2Product1 = operate(term1Exp1, Function.composeTFUNC(root.getChild1(), variable, Node.T_FUNC_TYPES.ln), "*"); // (f(x)^g(x)) * ln(f(x))
+                        Node term2Exp1 = operate(root.getChild1(), root.getChild2(), "^");
+                        Node term2Product1 = operate(term2Exp1, Function.composeTFUNC(root.getChild1(), variable, Node.T_FUNC_TYPES.ln), "*"); // (f(x)^g(x)) * ln(f(x))
                         Node term2 = operate(term2Product1, subDerivative2, "*"); // (f(x)^g(x)) * ln(f(x)) * g'(x)
 
                         //sum
@@ -1153,7 +1157,7 @@ public class Function {
                             // with addition you can add any two numbers and nothing bad happens!!
                              if (newChild1.getVal().equals("0.0")) {
                                  newChild2.severParent(simplified);
-                                 simplified = newChild2.loneClone();
+                                 simplified = newChild2.rootClone();
                              } else if (newChild2.getVal().equals("0.0")) {
                                  newChild1.severParent(simplified);
                                  simplified = newChild1;
@@ -1504,6 +1508,7 @@ public class Function {
         // then go to simplifying constants that are operated on, ex. 7 instead of 3 + 4
         // get to the point where you can divide polynomials to get rid of those pesky asymptotes
         simplified.updateLevel();
+
         return simplified;
     }
 
@@ -1583,32 +1588,35 @@ public class Function {
 
     public static String toString(Node root) {
 
-        String function = "";
+        String function = "NULL";
         //System.out.println("Immediate Tree: " + root);
 
-        switch(root.getType()) {
-            case Const:
-            case Variable:
+        if (root != null) {
 
-                function = root.getVal();
-                break;
-            case Operation:
+            switch(root.getType()) {
+                case Const:
+                case Variable:
 
-                function = "(" + toString(root.getChild1()) + " " + root.getVal() + " " + toString(root.getChild2()) + ")";
-                break;
-            case T_FUNC:
+                    function = root.getVal();
+                    break;
+                case Operation:
 
-                String inner = toString(root.getChild1());
+                    function = "(" + toString(root.getChild1()) + " " + root.getVal() + " " + toString(root.getChild2()) + ")";
+                    break;
+                case T_FUNC:
 
-                switch (root.getChild1().getType()) {
-                    case T_FUNC:
-                    case Operation:
-                        inner = inner.substring(1, inner.length() - 1);
-                        break;
-                }
+                    String inner = toString(root.getChild1());
 
-                function = "(" + root.getVal() + "(" + inner + "))";
-                break;
+                    switch (root.getChild1().getType()) {
+                        case T_FUNC:
+                        case Operation:
+                            inner = inner.substring(1, inner.length() - 1);
+                            break;
+                    }
+
+                    function = "(" + root.getVal() + "(" + inner + "))";
+                    break;
+            }
         }
 
         return function;
@@ -1635,7 +1643,6 @@ public class Function {
     public static boolean FunctionTypeTester(double input) {
 
         boolean passed = true;
-
         String variable = "x";
 
         String polynomial = "(x ^ 3)";
@@ -1714,8 +1721,67 @@ public class Function {
         System.out.println("Passed test from " + init + " to " + end + ": " + passed + "\n");
     }
 
+    public static boolean rebuildTreeTester(ArrayList<Node> tree) {
+
+        Node root = Function.getRoot(tree);
+
+        if (root != null) {
+
+            ArrayList<Node> rebuiltTree = rebuildTree(root);
+            Node rebuiltRoot = Function.getRoot(rebuiltTree);
+
+            if (rebuiltRoot != null) {
+
+                return root.fullEquals(rebuiltRoot);
+            } else {
+
+                System.out.println("ERROR: rebuilt tree does not have root");
+            }
+        } else {
+
+            System.out.println("ERROR: input tree does not have root");
+        }
+
+        return false;
+    }
+
+    public static boolean rebuiltRootTestCases() {
+
+        boolean passed = true;
+        String variable = "x";
+
+        String polynomial = "(x ^ 3)";
+        Function polynomialFunction = new Function(polynomial, variable, new HashMap<String, Double>());
+        passed = rebuildTreeTester(polynomialFunction.getOperationsTree());
+        if (!passed) {
+
+            return false;
+        }
+
+        String wayMoreComplex = "((((x ^ 2) - ((3 * x) ^ 5)) + (((3 * x) ^ 0) + 2)) + ((3 ^ x) ^ 0)))";
+        HashMap<String, Double> WMCVariables = new HashMap<String, Double>();
+        WMCVariables.put("z", 123d);
+        Function wayMoreComplexFunction = new Function(wayMoreComplex, variable, WMCVariables);
+        passed = rebuildTreeTester(wayMoreComplexFunction.getOperationsTree());
+        if (!passed) {
+
+            return false;
+        }
+
+        String longest = "(((((3 * 5) * 45) + (x * (x ^ 3))) + (3 * (x / (3 * 9)))) * ((x / 4) ^ x))";
+        Function longestFunction = new Function(longest, variable, new HashMap<String, Double>());
+        passed = rebuildTreeTester(longestFunction.getOperationsTree());
+        if (!passed) {
+
+            return false;
+        }
+
+        return true;
+    }
+
     public static void main(String[] args) {
-        testFunctions(0,100);
+        //testFunctions(0,100);
+        //System.out.println(rebuiltRootTestCases());
 
 //        Function quadratic = new Function("((x ^ 2) + (2 * x))", "x", new HashMap<String, Double>());
 //        Node newFunc = Function.composeTFUNC(quadratic.getRoot(), quadratic.getVariable(), Node.T_FUNC_TYPES.sin);
@@ -1758,8 +1824,10 @@ public class Function {
 //        System.out.println("Longest Function: " + longestFunction);
 //        System.out.println("Derivative of longest: " + Function.constSimplify(longestFunction));
 
-        Function line = new Function("(x + (sin(2 * x)))", "x", new HashMap<String, Double>());
+        Function line = new Function("(atan((ln(x) ^ 2) + (10 * (sin(x ^ 2)))))", "x", new HashMap<String, Double>());
         //System.out.println(Arrays.toString(line.getZeroesNewton(new double[] {-20, 12})));
-        System.out.println(line);
+        System.out.println("f(x): " + line);
+        System.out.println("f'(x): " + Function.constSimplify(Function.derivative(line)));
+        System.out.println("f''(x): " + Function.constSimplify(Function.derivative(Function.constSimplify(Function.derivative(line)))));
     }
 }

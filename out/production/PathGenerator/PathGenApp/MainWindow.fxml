@@ -51,13 +51,11 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
-                        <Button fx:id="deleteFunction" mnemonicParsing="false" onAction="#deleteFunc" prefHeight="77.0" prefWidth="173.0" text="Delete" GridPane.rowIndex="6" />
-                        <Button fx:id="exportFunction" layoutX="386.0" layoutY="221.0" mnemonicParsing="false" onAction="#exportFunc" prefHeight="77.0" prefWidth="173.0" text="Export" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                        <Button fx:id="genFunction" layoutX="20.0" layoutY="221.0" mnemonicParsing="false" onAction="#genFunc" prefHeight="77.0" prefWidth="173.0" text="Generate" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                        <Button fx:id="deleteFunction" mnemonicParsing="false" onAction="#deleteFunc" prefHeight="77.0" prefWidth="173.0" text="Delete" GridPane.rowIndex="4" />
+                        <Button fx:id="exportFunction" layoutX="386.0" layoutY="221.0" mnemonicParsing="false" onAction="#exportFunc" prefHeight="77.0" prefWidth="173.0" text="Export" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Button fx:id="genFunction" layoutX="20.0" layoutY="221.0" mnemonicParsing="false" onAction="#genFunc" prefHeight="77.0" prefWidth="173.0" text="Generate" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                         <TextField fx:id="funcStrInput" onAction="#setFuncString" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="1" />
                         <TextField fx:id="pathRangeInput" layoutX="20.0" layoutY="103.0" onAction="#setPathRange" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <TextField fx:id="fRangeInit" layoutX="203.0" layoutY="103.0" onAction="#setInitFuncLimit" GridPane.columnIndex="2" GridPane.rowIndex="1" />
@@ -67,17 +65,13 @@
                         <Label fx:id="fRangeInitLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="158.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range Init" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" />
                         <Label fx:id="fRangeEndLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="295.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Function Range End" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" />
                         <TextField fx:id="fRangeEnd" layoutX="295.0" layoutY="70.0" onAction="#setEndFuncLimit" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                        <Label fx:id="transXLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Translation X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label fx:id="transYLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Translation Y" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                         <Label fx:id="rotationLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Rotation (Degrees)" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                        <TextField fx:id="transXInput" layoutX="158.0" layoutY="70.0" onAction="#setTransX" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <TextField fx:id="transYInput" layoutX="20.0" layoutY="160.0" onAction="#setTransY" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                         <TextField fx:id="rotationInput" layoutX="158.0" layoutY="160.0" onAction="#setRotation" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                        <Label fx:id="funcScaleXLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Scale X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="4" />
-                        <TextField fx:id="funcScaleXInput" layoutX="20.0" layoutY="84.0" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="5" />
+                        <Label fx:id="funcScaleXLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="173.0" text="Scale X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="funcScaleXInput" layoutX="20.0" layoutY="84.0" prefHeight="0.0" prefWidth="173.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Label fx:id="funcVarLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Variable" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.rowIndex="2" />
-                        <Label fx:id="funcScaleYLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Scale X" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <TextField fx:id="funcScaleYInput" prefHeight="0.0" prefWidth="173.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Label fx:id="funcScaleYLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="44.0" prefWidth="173.0" text="Scale Y" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <TextField fx:id="funcScaleYInput" prefHeight="0.0" prefWidth="173.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                         <TextField fx:id="funcVarInput" onAction="#setFuncVar" prefHeight="0.0" prefWidth="173.0" GridPane.rowIndex="3" />
                      </children>
                   </GridPane>
@@ -105,7 +99,7 @@
                         </ScrollPane>
                      </children>
                   </Pane>
-                  <Canvas fx:id="fieldDisplay" height="702.0" layoutX="567.0" layoutY="13.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onDragExited="#updateDisplay" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" width="703.0" />
+                  <Canvas fx:id="fieldDisplay" height="702.0" layoutX="567.0" layoutY="13.0" onDragDetected="#dragDetected" onDragDropped="#dragDropped" onDragExited="#updateDisplay" onMouseClicked="#fieldClicked" onMouseDragged="#dragDetected" onMouseMoved="#checkElements" width="703.0" />
                </children>
             </Pane>
          </content>

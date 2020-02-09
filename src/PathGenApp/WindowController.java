@@ -50,8 +50,6 @@ public class WindowController {
     public TextField funcScaleXInput;
     public TextField funcScaleYInput;
     public TextField funcVarInput;
-    public TextField transXInput;
-    public TextField transYInput;
     public TextField rotationInput;
 
     public Button deleteFunction;
@@ -65,8 +63,6 @@ public class WindowController {
     public Label funcScaleXLabel;
     public Label funcScaleYLabel;
     public Label funcVarLabel;
-    public Label transXLabel;
-    public Label transYLabel;
     public Label rotationLabel;
 
     public TableColumn funcColumn;
@@ -97,7 +93,7 @@ public class WindowController {
         //table
 
         funcColumn.setCellValueFactory(new PropertyValueFactory<>("Function"));
-        transColumn.setCellValueFactory(new PropertyValueFactory<>("Translation"));
+        //transColumn.setCellValueFactory(new PropertyValueFactory<>("Translation"));
         rotColumn.setCellValueFactory(new PropertyValueFactory<>("Rotation"));
         scaleColumn.setCellValueFactory(new PropertyValueFactory<>("Scale"));
         tRangeColumn.setCellValueFactory(new PropertyValueFactory<>("TRange"));
@@ -130,7 +126,7 @@ public class WindowController {
         resetField();
 
         // debug
-        FuncTableEntry f = new FuncTableEntry("(x ^ 2)", "x",  0.25, 0.5, new Vector2D(0, 0), 0, 3, new double[] {-20, 12});
+        FuncTableEntry f = new FuncTableEntry("(x ^ 2)", "x",  0.5, 0.5, Math.toRadians(0), 3, new double[] {-10, 10});
         loadRow(f);
     }
 
@@ -214,15 +210,15 @@ public class WindowController {
             }
         }
 
-        double xComp = 0.0;
-        double yComp = 0.0;
-        try {
-             xComp = Double.parseDouble(transXInput.getText());
-             yComp = Double.parseDouble(transYInput.getText());
-        } catch (Exception e) {
-
-            properlyFormatted = false;
-        }
+//        double xComp = 0.0;
+//        double yComp = 0.0;
+//        try {
+//             xComp = Double.parseDouble(transXInput.getText());
+//             yComp = Double.parseDouble(transYInput.getText());
+//        } catch (Exception e) {
+//
+//            properlyFormatted = false;
+//        }
 
         double scaleX = 0.0;
         double scaleY = 0.0;
@@ -234,7 +230,7 @@ public class WindowController {
             properlyFormatted = false;
         }
 
-        Vector2D translation = new Vector2D(xComp, yComp);
+        //Vector2D translation = new Vector2D(xComp, yComp);
 
         double rotation = 0.0;
 
@@ -263,7 +259,18 @@ public class WindowController {
 
         if (properlyFormatted) {
 
-            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), variable, scaleX, scaleY, translation, rotation, tRange, fRange);
+            FuncTableEntry newRow = new FuncTableEntry(newFunc.toString(), variable, scaleX, scaleY, rotation, tRange, fRange);
+
+            Vector2D translation = new Vector2D(0, 0);
+
+            if (functions.size() > 0) {
+
+                translation = translations.get(translations.size() - 1);
+                ParametricFunction2D p = new ParametricFunction2D(newFunc, false);
+                Vector2D endPoint = p.output(fRange[1]);
+
+                translation.add(endPoint);
+            }
 
             if (funcSelectedTable >= 0) {
 
@@ -274,6 +281,12 @@ public class WindowController {
                 scales.set(funcSelectedTable, new Pair<Double, Double>(scaleX, scaleY));
                 tRanges.set(funcSelectedTable, tRange);
                 definedFunctionRanges.set(funcSelectedTable, fRange);
+
+
+
+                //TODO: calculate the new Translation
+
+                translations.set(funcSelectedTable, translation);
 
                 funcInfoTable.getItems().set(funcSelectedTable, newRow); // overwrite the selected row
 
@@ -367,8 +380,12 @@ public class WindowController {
 
             translations.set(funcSelectedField, boundOffset);
             updateDisplay();
+
+            funcSelectedField = -1;
         }
     }
+
+
 
     private int findSelectedFunc(Vector2D clickedPoint) {
 
@@ -409,6 +426,26 @@ public class WindowController {
         return -1;
     }
 
+    // called when mouse is moved
+    public void checkElements(MouseEvent mouseEvent) {
+
+        Vector2D mouseClick = new Vector2D(mouseEvent.getSceneX() - fieldDisplay.getLayoutX(), mouseEvent.getSceneY() - fieldDisplay.getLayoutY());
+
+        int funcHoverIndex = findSelectedFunc(mouseClick);
+
+        if (funcHoverIndex != -1) {
+
+            ParametricFunction2D hoverFunc = displayedFunctions.get(funcHoverIndex);
+            double[] domain = definedFunctionRanges.get(funcHoverIndex);
+
+            Vector2D leftPoint = hoverFunc.output(domain[0]);
+            Vector2D rightPoint = hoverFunc.output(domain[1]);
+
+            leftPoint.add(translations.get(funcHoverIndex));
+            rightPoint.add(translations.get(funcHoverIndex));
+        }
+    }
+
 
     public void dragDetected(MouseEvent mouseEvent) {
 
@@ -422,10 +459,25 @@ public class WindowController {
 
     private double[] getDisplayBoundingBox(int func) {
 
-        ParametricFunction2D p = displayedFunctions.get(func);
-        double[] boundingBox = p.findBounds(definedFunctionRanges.get(func));
-        Pair<Double, Double> scale = scales.get(func);
-        Vector2D trans = translations.get(func);
+        return getDisplayBoundingBox(displayedFunctions.get(func), definedFunctionRanges.get(func), scales.get(func), translations.get(func));
+    }
+
+    private double[] getDisplayBoundingBox(ParametricFunction2D p, double[] definedFunctionRange, Pair<Double, Double> scale, Vector2D trans) {
+
+        double[] boundingBox = getLocalBoundingBox(p, definedFunctionRange, scale);
+
+        boundingBox[0] += trans.getComponent(0);
+        boundingBox[2] += trans.getComponent(0);
+
+        boundingBox[1] += trans.getComponent(1);
+        boundingBox[3] += trans.getComponent(1);
+
+        return boundingBox;
+    }
+
+    private double[] getLocalBoundingBox(ParametricFunction2D p, double[] definedFunctionRange, Pair<Double, Double> scale) {
+
+        double[] boundingBox = p.findBounds(definedFunctionRange);
 
         double xRange = boundingBox[2] - boundingBox[0];
         double yRange = boundingBox[3] - boundingBox[1];
@@ -443,23 +495,19 @@ public class WindowController {
         boundingBox[3] -= boundingBox[1];
         boundingBox[1] -= boundingBox[1];
 
-        boundingBox[0] += trans.getComponent(0);
         boundingBox[2] *= calcScaleX;
-        boundingBox[2] += trans.getComponent(0);
-
-        boundingBox[1] += trans.getComponent(1);
         boundingBox[3] *= calcScaleY;
-        boundingBox[3] += trans.getComponent(1);
 
         return boundingBox;
     }
 
     private void resetField() {
+
         graphics.drawImage(field, 0, 0);
     }
 
     private void regenFunctions() {
-        Function[] orderedFunctions = functions.toArray(new Function[0]);
+        Function[] orderedFunctions = functions.toArray(new Function[functions.size()]);
         double[] newAngles = rotations.stream().mapToDouble(d -> d).toArray();
 
         displayedFunctions.clear();
@@ -500,8 +548,8 @@ public class WindowController {
             fill(func, ignoreDrawColor);
 
             // draw the function
-
             drawFunction(displayedFunctions.get(p), new Vector2D(funcBoundingBox[0], funcBoundingBox[1]), newDefRanges[p], func, calcScaleX, calcScaleY);
+            func = flipImage(func, false, true);
 
             // draw the frickin function my dudes
             draw(fieldDisplay, func, (int) newTranslations[p].getComponent(0).doubleValue(), (int) newTranslations[p].getComponent(1).doubleValue());
@@ -509,7 +557,7 @@ public class WindowController {
         }
 
         // making sure it's good to export or not
-        boolean exportReady = ParametricPath.isValid(ParametricPath.parametrize(orderedFunctions, newAngles), newTranslations, newTRanges, newDefRanges);
+        boolean exportReady = ParametricPath.isValid(displayedFunctions.toArray(new ParametricFunction2D[displayedFunctions.size()]), newTranslations, newTRanges, newDefRanges);
 
         if (exportReady) {
             exportFunction.setDisable(false);
@@ -536,7 +584,7 @@ public class WindowController {
             point.scale(1, scaleY);
             //System.out.println("func Point: " + point);
 
-            if ((point.getComponent(0) > 0 && point.getComponent(0) < canvas.getWidth()) && (point.getComponent(1) > 0 && point.getComponent(1) < canvas.getHeight())) {
+            if ((point.getComponent(0) >= 0 && point.getComponent(0) < canvas.getWidth()) && (point.getComponent(1) >= 0 && point.getComponent(1) < canvas.getHeight())) {
 
                 canvas.setRGB((int) point.getComponent(0).doubleValue(), (int) point.getComponent(1).doubleValue(), java.awt.Color.green.getRGB());
 
@@ -549,6 +597,42 @@ public class WindowController {
 
             previousPoint = point;
         }
+    }
+
+    public BufferedImage flipImage(BufferedImage image, boolean horz, boolean vert) {
+
+        BufferedImage flippedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                int newX = x;
+                int newY = y;
+
+                if (horz) {
+                    if (image.getWidth() % 2 != 0) {
+                        newX -= (image.getWidth() / 2);
+                        newX *= -1;
+                        newX += (image.getWidth() / 2);
+                    } else {
+                        newX = ((image.getWidth() - 1) - newX);
+                    }
+                }
+
+                if (vert) {
+                    if (image.getHeight() % 2 != 0) {
+                        newY -= (image.getHeight() / 2);
+                        newY *= -1;
+                        newY += (image.getHeight() / 2);
+                    } else {
+                        newY = ((image.getHeight() - 1) - newY);
+                    }
+                }
+
+                flippedImage.setRGB(newX, newY, image.getRGB(x, y));
+            }
+        }
+
+        return flippedImage;
     }
 
     public void fill(Canvas c, Color fillColor) {
@@ -667,8 +751,6 @@ public class WindowController {
         funcScaleXInput.setText(String.valueOf(f.getScaleVar().get1()));
         funcScaleYInput.setText(String.valueOf(f.getScaleVar().get2()));
         funcVarInput.setText(f.getVariable());
-        transXInput.setText(String.valueOf(f.getTranslationVar().getComponents()[0]));
-        transYInput.setText(String.valueOf(f.getTranslationVar().getComponents()[1]));
         rotationInput.setText(String.valueOf(Math.toDegrees(f.getRotationVar())));
     }
 
@@ -681,8 +763,6 @@ public class WindowController {
         funcScaleXInput.clear();
         funcScaleYInput.clear();
         funcVarInput.clear();
-        transXInput.clear();
-        transYInput.clear();
         rotationInput.clear();
     }
 }

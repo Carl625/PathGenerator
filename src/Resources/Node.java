@@ -76,10 +76,17 @@ public class Node {
 
     public Node linkedClone() {
 
+        Node clone = rootClone();
+        clone.setParent(parent);
+
+        return clone;
+    }
+
+    public Node rootClone() {
+
         Node clone = new Node(type, parameter);
         clone.setChild1(child1);
         clone.setChild2(child2);
-        clone.setParent(parent);
 
         return clone;
     }
@@ -160,6 +167,89 @@ public class Node {
 
             return (((child1 != null) && child1.subTreeContains(value)) || ((child2 != null) && child2.subTreeContains(value)));
         }
+    }
+
+    public boolean loneEquals(Node otherRoot) {
+
+        if (!this.getType().equals(otherRoot.getType())) {
+
+            return false;
+        } else if (this.getType().equals(paramType.T_FUNC)) {
+
+            if (!this.T_FUNC_TYPE.equals(otherRoot.T_FUNC_TYPE)) {
+
+                return false;
+            }
+        }
+
+        if (!this.getVal().equals(otherRoot.getVal())) {
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean fullEquals(Node otherRoot) {
+
+        if (!this.getType().equals(otherRoot.getType())) {
+
+            return false;
+        } else if (this.getType().equals(paramType.T_FUNC)) {
+
+            if (!this.T_FUNC_TYPE.equals(otherRoot.T_FUNC_TYPE)) {
+
+                return false;
+            }
+        }
+
+        if (!this.getVal().equals(otherRoot.getVal())) {
+
+            return false;
+        }
+
+        if (this.getLevel() != otherRoot.getLevel()) {
+
+            return false;
+        }
+
+        //child1 equals
+        if (this.getChild1() != null) {
+
+            if (otherRoot.getChild1() != null) {
+
+                if (!this.getChild1().fullEquals(otherRoot.getChild1())) {
+
+                    return false;
+                }
+            } else {
+
+                return false;
+            }
+        } else if (otherRoot.getChild1() != null) {
+
+            return false;
+        }
+
+        //child2 equals
+        if (this.getChild2() != null) {
+
+            if (otherRoot.getChild2() != null) {
+
+                if (!this.getChild2().fullEquals(otherRoot.getChild2())) {
+
+                    return false;
+                }
+            } else {
+
+                return false;
+            }
+        } else if (otherRoot.getChild2() != null) {
+
+            return false;
+        }
+
+        return true;
     }
 
     @Override

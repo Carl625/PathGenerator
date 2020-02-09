@@ -35,7 +35,7 @@ public class ParametricPath {
                 && (newAngles.length == orderedFunctions.length)
                 && (newTranslations.length == orderedFunctions.length);
 
-        if (!checkDefinedRanges(newDefRanges) || !allPositive(newRanges) || !matching || !checkTranslations()) {
+        if (!checkDefinedRanges(newDefRanges) || allPositive(newRanges) || !matching || !checkTranslations()) {
             throw new FunctionFormatException("Functions in new Path incorrectly defined!", (new Exception()).getCause());
         }
     }
@@ -46,7 +46,7 @@ public class ParametricPath {
                 && (newDefRanges.length == orderedFunctions.length)
                 && (newTranslations.length == orderedFunctions.length);
 
-        if (!checkDefinedRanges(newDefRanges) || !allPositive(newRanges) || !matching || !checkTranslations(newTranslations, orderedFunctions, newDefRanges)) {
+        if (!checkDefinedRanges(newDefRanges) || allPositive(newRanges) || !matching || !checkTranslations(newTranslations, orderedFunctions, newDefRanges)) {
             return false;
         }
 
@@ -116,9 +116,9 @@ public class ParametricPath {
 
     public static boolean allPositive(double[] list) {
 
-        for (int i = 0; i < list.length; i++) {
+        for (double v : list) {
 
-            if (list[i] <= 0) {
+            if (v <= 0) {
 
                 return false;
             }
@@ -189,7 +189,7 @@ public class ParametricPath {
         return tValRange;
     }
 
-    public double getSpeed(double tVal) {
+    public double getSpeed(double tVal) { // TODO: work out this speed variable, I don't think it's done
 
         int currentFuncIndex = getPathComponentIndex(tVal);
         double[] tRange = tRanges[currentFuncIndex];

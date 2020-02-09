@@ -2,6 +2,7 @@ import Resources.Function;
 import Resources.Pair;
 import Resources.ParametricFunction2D;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class FTCParamFuncGrapherTester extends FTCParametricFunctionGrapher {
@@ -63,26 +64,27 @@ public class FTCParamFuncGrapherTester extends FTCParametricFunctionGrapher {
 	}
 	
 	public static void main(String[] args) {
-		
-//		Resources.Function sine = new Resources.Function("(8 * (sin(x)))", "x", new HashMap<String, Double>());
-//		Resources.Function cosine = new Resources.Function("(4 * (cos(x)))", "x", new HashMap<String, Double>());
-//		Resources.ParametricFunction2D circle = new Resources.ParametricFunction2D(sine, cosine, false);
-		
-		Function parabola = new Function("(x ^ 2)", "x", new HashMap<String, Double>());
+
+//		Function sine = new Function("(8 * (sin(x)))", "x", new HashMap<String, Double>());
+//		Function cosine = new Function("(4 * (cos(x)))", "x", new HashMap<String, Double>());
+//		ParametricFunction2D circle = new ParametricFunction2D(sine, cosine, false);
+
+		Function parabola = new Function("(1 / (sin(x)))", "x", new HashMap<String, Double>());
 		ParametricFunction2D parabolaParametric = new ParametricFunction2D(parabola, false);
-		
+
 		Function derivative1 = Function.constSimplify(Function.derivative(parabola));
-		System.out.println(derivative1);
-		ParametricFunction2D derivParametric = new ParametricFunction2D(derivative1, false);
-		
-		//Resources.ParametricFunction2D rotatedPP = Resources.ParametricFunction2D.rotate(parabolaParametric, Math.toRadians(168));
-		//Resources.ParametricFunction2D regeneratedParabolaParametric = new Resources.ParametricFunction2D(rotatedPP.getPolarComponents().get1(), rotatedPP.getPolarComponents().get2(), true);
-		
-		FTCParamFuncGrapherTester g = new FTCParamFuncGrapherTester(parabolaParametric, new Pair<Coordinate, Coordinate>(new Coordinate(-2, -2), new Coordinate(2, 2)), -(Math.PI * 6), Math.PI / 500, Math.PI * 12, true);
+		//System.out.println(derivative1);
+		//ParametricFunction2D derivParametric = new ParametricFunction2D(derivative1, false);
+
+		ParametricFunction2D rotatedPP = ParametricFunction2D.rotate(parabolaParametric, Math.toRadians(196));
+		//ParametricFunction2D regeneratedParabolaParametric = new ParametricFunction2D(rotatedPP.getPolarComponents().get1(), rotatedPP.getPolarComponents().get2(), true);
+		System.out.println(rotatedPP.getRectangularComponents().get1());
+		FTCParamFuncGrapherTester g = new FTCParamFuncGrapherTester(rotatedPP, new Pair<Coordinate, Coordinate>(new Coordinate(-10, -10), new Coordinate(10, 10)), -20, Math.PI / 100, 32, false);
 		g.drawGraph(0, 0, 2000, 2000);
 		//System.out.println(parabola);
-		
-		FTCParamFuncGrapherTester h = new FTCParamFuncGrapherTester(derivParametric, new Pair<Coordinate, Coordinate>(new Coordinate(-20, -20), new Coordinate(20, 20)), -10, 0.001, 20.0, false);
-		h.drawGraph(0,  0, 2000, 2000);
+//		System.out.println(Arrays.toString(rotatedPP.approximateBounds(new double[] {-10, 10}, 0.01)));
+//		System.out.println(Arrays.toString(rotatedPP.findBounds(new double[] {-10, 10})));
+//		FTCParamFuncGrapherTester h = new FTCParamFuncGrapherTester(derivParametric, new Pair<Coordinate, Coordinate>(new Coordinate(-20, -20), new Coordinate(20, 20)), -10, 0.001, 20.0, false);
+//		h.drawGraph(0,  0, 2000, 2000);
 	}
 }
